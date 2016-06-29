@@ -1,0 +1,39 @@
+<html>
+	<head>
+		<title> Cultural Evolution of Language Lab's Pictionary Game </title>
+		<style>
+		body {font-family: arial ;background-color: rgb(185, 179, 175); color: Pink;}
+		h1 {background-color: DarkCyan; color: rgb(200, 255, 255);}
+		#wrapper {position:relative; width:400px; height:400px; margin:0 auto; padding-top:75px;}
+		#canvas {background-color: White; cursor:crosshair;}
+		.noscript { padding:50px 30px 0 40px; width:820px;}
+		#selector {position:absolute; z-index:99999; margin-top:-30px;}
+		select {font-family:Verdana, Geneva, sans-serif; font_size:12px; background-color: Grey;}
+		</style>
+	</head>
+	<script src="/socket.io/socket.io.js"></script>
+	<body>
+		<h1> Let's Play Pictionary </h1>
+		<p> Hello and welcome to our game of Pictionary! Make sure to read the rules below. Press the start button when you are ready to play! 
+			<ol>
+				<li> Press the play button when you are ready to begin. 
+				<li> You will take turns drawing and guessing. 
+			</ol>
+		</p>
+		<div id="wrapper">
+			<select name="color_menu" id="selector_one" align="left">
+				<option value="black">Black</option>
+				<option value="brown">Brown</option>
+				<option value="red">Red</option>
+				<option value="blue">Blue</option>
+				<option value="orange">Orange</option>
+				<option value="yellow">Yellow</option>
+				<option value="purple">Purple</option>
+				<option value="green">Green</option>
+			</select>
+			<button type="button" id="button">Ready to Play!</button>
+			<canvas id="canvas" width=300 height=300 > </canvas>
+			<script src="canvas.js"></script>	
+		</div>		
+	</body>
+</html>
