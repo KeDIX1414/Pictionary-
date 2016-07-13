@@ -5,7 +5,7 @@ var paint = false
 var currentX = 0
 var currentY = 0
 
-
+// Find the color the user has selected
 function getColor() {
 	var select = document.getElementById("selector_one");
 	var option = select.options[select.selectedIndex].value;
@@ -39,10 +39,13 @@ function getColor() {
 	return color
 }
 
+/*
+The following functions and event listeners are used to find the coordinates where a player is drawing, and transmit those 
+coordinates to the server. The server is responsible for sending the coordinates to the necessary players so the image can
+be drawn on their screens in real time. If a player is not designated as a "drawer", the server will not send the coordinates.*/
 
 canvas.addEventListener('click', function(e) {
-	//var x = e.clientX - 440 
-	//var y = e.clientY - 247
+
 	var totalOffsetX = 0;
     var totalOffsetY = 0;
     var canvasX = 0;
@@ -57,10 +60,6 @@ canvas.addEventListener('click', function(e) {
 
     x = e.pageX - totalOffsetX;
     y = e.pageY - totalOffsetY;
-
-	context = canvas.getContext("2d")
-	context.fillStyle = getColor()
-	context.fillRect(x, y, 2, 2)
 	var coordinates = {xPos: x, yPos: y};
 	socket.emit('sentclick', coordinates);
 
@@ -74,8 +73,6 @@ socket.on('drawclick', function(coordinates) {
 
 canvas.addEventListener('mousedown', function(e) {
 	paint = true;
-	//var x = e.clientX - 440 
-	//var y = e.clientY - 247
 	var totalOffsetX = 0;
     var totalOffsetY = 0;
     var canvasX = 0;
@@ -90,9 +87,6 @@ canvas.addEventListener('mousedown', function(e) {
 
     x = e.pageX - totalOffsetX;
     y = e.pageY - totalOffsetY;
-	context = canvas.getContext("2d");
-	context.fillStyle = getColor()
-	context.fillRect(x, y, 2, 2)
 	currentX = x
 	currentY = y
 	var coordinates = {xPos: x, yPos: y, colors: getColor()};
@@ -102,8 +96,6 @@ canvas.addEventListener('mousedown', function(e) {
 
 canvas.addEventListener('mousemove', function(e) {
 	if (paint) {
-		//var x = e.clientX - 440 
-		//var y = e.clientY - 247
 		var totalOffsetX = 0;
     	var totalOffsetY = 0;
     	var canvasX = 0;
@@ -118,13 +110,6 @@ canvas.addEventListener('mousemove', function(e) {
 
     	x = e.pageX - totalOffsetX;
     	y = e.pageY - totalOffsetY;
-		context = canvas.getContext("2d");
-		context.strokeStyle = getColor()
-		context.beginPath()
-		context.moveTo(currentX, currentY)
-		context.lineTo(x, y)
-		context.lineWidth = 2
-		context.stroke()
 		var coordinates = {xInit: currentX, yInit: currentY, xFin: x, yFin: y, colors: getColor()};
 		socket.emit('sentline', coordinates);
 		currentX = x
@@ -143,11 +128,18 @@ socket.on('drawline', function(coordinates) {
 	context.stroke()
 });
 
+canvas.addEventListener('mouseout', function(e) {
+	paint = false;
+}, false);
+
 canvas.addEventListener('mouseup', function(e) {
 	paint = false;
 }, false);
 
-
+socket.on('clearcanvas', function() {
+	context = canvas.getContext("2d");
+	context.clearRect(0, 0, canvas.width, canvas.height);
+});
 
 
 
