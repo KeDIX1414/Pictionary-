@@ -16,8 +16,11 @@
 		<h1> Let's Play Pictionary </h1>
 		<p> Hello and welcome to our game of Pictionary! Make sure to read the rules below. Press the start button when you are ready to play! 
 			<ol>
-				<li> Press the play button when you are ready to begin. 
-				<li> You will take turns drawing and guessing. 
+				<li> Press the play button when you are ready to begin. You will be alerted when enough players
+				are ready, and the game is beginning.
+				<li> Like a normal game of Pictionary, you will take turns drawing and guessing. When it is your turn
+				to draw, you will be told the object you have to draw and the time remaing.
+				<li> When it is your turn to guess, write your answer in the textbox when you are ready.
 			</ol>
 		</p>
 		<div id="wrapper">
@@ -33,7 +36,10 @@
 			</select>
 			<button type="button" id="button">Ready to Play!</button>
 			<canvas id="canvas" width=300 height=300 > </canvas>
-			<script src="canvas.js"></script>	
+			<script src="canvas.js"></script>
+			<p> Please draw a : cow </p>
+			<textarea id="textbox"> Input your guess here. </textarea>
+
 		</div>		
 	</body>
 </html>
