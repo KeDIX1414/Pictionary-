@@ -3,12 +3,15 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http); //app
-var sockets
+
+//var sockets
 var players = {}; // keeps track of everyone playing the game
 var sockets = new Array();
 var numPlayers = 0;
 var playing = false;
 var round = 1;
+
+var words = ["sun", "moon", "star", "sky"];
 
 app.get('/', function(req, res){
 	res.sendfile('PictionarySite.html');
@@ -94,11 +97,14 @@ function startGame() {
 
     }
   }
+  word = words[0];
+  io.sockets.emit('setroles', players, word);
+
   for (i = 0; i < sockets.length; i++) {
     console.log(players[sockets[i]])
   }
   playing = true;
-  var time = setInterval(swapPartners, 10000)
+  var time = setInterval(swapPartners, 20000)
 
   function swapPartners() {
     playing = false;
@@ -111,6 +117,8 @@ function startGame() {
         players[sockets[i]].type = "guesser";
       }
     }
+    word = words[round]
+    io.sockets.emit('setroles', players, word);
     round = round + 1;
     if (round === 5) {
       clearInterval(time);
