@@ -2,8 +2,6 @@ var socket = io();
 var canvas = document.getElementById('canvas')
 var button = document.getElementById('button')
 var paint = false
-var currentX = 0
-var currentY = 0
 
 // Find the color the user has selected
 function getColor() {
@@ -38,6 +36,7 @@ function getColor() {
 	}
 	return color
 }
+
 
 /*
 The following functions and event listeners are used to find the coordinates where a player is drawing, and transmit those 
@@ -139,6 +138,16 @@ canvas.addEventListener('mouseup', function(e) {
 socket.on('clearcanvas', function() {
 	context = canvas.getContext("2d");
 	context.clearRect(0, 0, canvas.width, canvas.height);
+});
+
+socket.on('setroles', function(players, word) {
+	var text;
+	if (players["/#" + socket.id].type === "guesser") {
+		text = "You are guesser this round. When you think you know what your partner is drawing, enter your guess in the textbox."
+	} else {
+		text = "You are a drawer this round. Please draw a " + word + " . We will let you know what your partner guesses."
+	}
+	document.getElementById('text').innerHTML = text;
 });
 
 
