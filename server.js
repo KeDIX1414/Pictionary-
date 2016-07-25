@@ -9,7 +9,7 @@ var players = {}; // keeps track of everyone playing the game
 var sockets = new Array();
 var numPlayers = 0;
 var playing = false;
-var round = 1;
+var round = 0;
 
 var words = ["sun", "moon", "star", "sky"];
 
@@ -31,7 +31,7 @@ io.on('connection', function(socket){
 	
  	// handle when player disconnects
   	socket.on('disconnect', function(){
-  		delete players.get(socket);
+  		//delete players.get(socket);
     	console.log('user disconnected');
     });
 
@@ -61,6 +61,23 @@ io.on('connection', function(socket){
         //io.sockets.emit('drawline', coordinates);
         socket.emit('drawline', coordinates);
         socket.broadcast.to(players[socket.id].partner).emit('drawline', coordinates);
+      }
+    });
+
+    // handle when a player guesses
+    socket.on('sentguess', function(guess) {
+      if (players[socket.id].type === "drawer") {
+        return;
+      }
+      var answer = "";
+      if (guess === words[round]) {
+        answer = "correct"
+        socket.emit('guesser_guessreceived', answer);
+        socket.broadcast.to(players[socket.id].partner).emit('drawer_guessreceived', answer);
+      } else {
+        answer = "incorrect"
+        socket.emit('guesser_guessreceived', answer);
+        socket.broadcast.to(players[socket.id].partner).emit('drawer_guessreceived', answer);
       }
     });
 
@@ -117,10 +134,10 @@ function startGame() {
         players[sockets[i]].type = "guesser";
       }
     }
+    round = round + 1;
     word = words[round]
     io.sockets.emit('setroles', players, word);
-    round = round + 1;
-    if (round === 5) {
+    if (round === 4) {
       clearInterval(time);
       endGame();
     }

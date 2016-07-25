@@ -7,7 +7,7 @@
 		#wrapper {position:relative; width:400px; height:400px; margin:0 auto; padding-top:75px;}
 		#canvas {background-color: White; cursor:crosshair;}
 		.noscript { padding:50px 30px 0 40px; width:820px;}
-		#selector {position:absolute; z-index:99999; margin-top:-30px;}
+		#selector_one {position:absolute; z-index:99999;  margin-top:-30px; margin-right:50px;}
 		select {font-family:Verdana, Geneva, sans-serif; font_size:12px; background-color: Grey;}
 		</style>
 	</head>
@@ -24,7 +24,7 @@
 			</ol>
 		</p>
 		<div id="wrapper">
-			<select name="color_menu" id="selector_one" align="left">
+			<select name="color_menu" id="selector_one" >
 				<option value="black">Black</option>
 				<option value="brown">Brown</option>
 				<option value="red">Red</option>
@@ -34,12 +34,11 @@
 				<option value="purple">Purple</option>
 				<option value="green">Green</option>
 			</select>
-			<button type="button" id="button">Ready to Play!</button>
 			<canvas id="canvas" width=300 height=300 > </canvas>
 			<script src="canvas.js"></script>
 			<p id="text">Thank you for your patience. The game will begin shortly. Do not refresh the page.</p>
 			<textarea id="textbox"> Input your guess here. </textarea>
-
+			<button onclick="guessSubmitted()">Submit Guess!</button>
 		</div>		
 	</body>
 </html>
