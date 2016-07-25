@@ -1,6 +1,5 @@
 var socket = io();
 var canvas = document.getElementById('canvas')
-var button = document.getElementById('button')
 var paint = false
 
 // Find the color the user has selected
@@ -36,6 +35,27 @@ function getColor() {
 	}
 	return color
 }
+
+function guessSubmitted() {
+	var guess = document.getElementById('textbox').value;
+	socket.emit('sentguess', guess);
+}
+
+socket.on('guesser_guessreceived', function(answer) {
+	if (answer === 'correct') {
+		alert('You guessed correctly!');
+	} else {
+		alert("You guessed incorrectly. Try again!");
+	}
+});
+
+socket.on('drawer_guessreceived', function(answer) {
+	if (answer === 'correct') {
+		alert('Your partner guessed correctly!');
+	} else {
+		alert("Your partner just guessed incorectly. Keep trying!");
+	}
+});
 
 
 /*
