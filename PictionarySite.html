@@ -14,16 +14,17 @@
 	<script src="/socket.io/socket.io.js"></script>
 	<body>
 		<h1> Let's Play Pictionary </h1>
-		<p> Hello and welcome to our game of Pictionary! Make sure to read the rules below. Press the start button when you are ready to play! 
-			<ol>
-				<li> Press the play button when you are ready to begin. You will be alerted when enough players
-				are ready, and the game is beginning.
-				<li> Like a normal game of Pictionary, you will take turns drawing and guessing. When it is your turn
-				to draw, you will be told the object you have to draw and the time remaing.
-				<li> When it is your turn to guess, write your answer in the textbox when you are ready.
-			</ol>
-		</p>
+		<p> INSTRUCTIONS:  
+      <ol>
+        <li> Like a typical game of Pictionary, you will take turns drawing pictures for your partner to guess 
+        <li> You will take turns drawing and guessing.
+        <li> When it is your turn to draw, you will have one minute to draw a specific object. You will be told your partners guesses. 
+      </ol>
+    </p>
 		<div id="wrapper">
+			<p id="countdown">20</p>
+			<p id="guess_information">   </p>
+			<p id="text" style="margin-bottom:50px;">Thank you for your patience. The game will begin shortly. Do not refresh the page.</p>
 			<select name="color_menu" id="selector_one" >
 				<option value="black">Black</option>
 				<option value="brown">Brown</option>
@@ -36,7 +37,6 @@
 			</select>
 			<canvas id="canvas" width=300 height=300 > </canvas>
 			<script src="canvas.js"></script>
-			<p id="text">Thank you for your patience. The game will begin shortly. Do not refresh the page.</p>
 			<textarea id="textbox"> Input your guess here. </textarea>
 			<button onclick="guessSubmitted()">Submit Guess!</button>
 		</div>		

@@ -73,11 +73,11 @@ io.on('connection', function(socket){
       if (guess === words[round]) {
         answer = "correct"
         socket.emit('guesser_guessreceived', answer);
-        socket.broadcast.to(players[socket.id].partner).emit('drawer_guessreceived', answer);
+        socket.broadcast.to(players[socket.id].partner).emit('drawer_guessreceived', answer, guess);
       } else {
         answer = "incorrect"
         socket.emit('guesser_guessreceived', answer);
-        socket.broadcast.to(players[socket.id].partner).emit('drawer_guessreceived', answer);
+        socket.broadcast.to(players[socket.id].partner).emit('drawer_guessreceived', answer, guess);
       }
     });
 
@@ -116,6 +116,7 @@ function startGame() {
   }
   word = words[0];
   io.sockets.emit('setroles', players, word);
+  io.sockets.emit('starttimer');
 
   for (i = 0; i < sockets.length; i++) {
     console.log(players[sockets[i]])
@@ -142,6 +143,7 @@ function startGame() {
       endGame();
     }
     playing = true;
+    //io.sockets.emit('starttimer');
   }
 }
 
