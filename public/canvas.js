@@ -66,18 +66,19 @@ socket.on('drawer_guessreceived', function(answer, guess) {
 Handling the timer display
 */
 socket.on('starttimer', function() {
-	var time = setInterval(countdown, 1000)
+	document.getElementById('countdown').innerHTML = timer.toString();
+	var time = setInterval(function() {
+		timer = timer - 1;
+		document.getElementById('countdown').innerHTML = timer.toString();
+		if (timer === -1) {
+			document.getElementById('guess_information').innerHTML = ""
+			timer = 20
+			document.getElementById('countdown').innerHTML = "The next round will begin shortly!"
+			clearInterval(time)
+		}
+	}, 1000);
 })
 
-function countdown() {
-	timer = timer - 1
-	document.getElementById('countdown').innerHTML = timer.toString();
-	if (timer === 0) {
-		document.getElementById('guess_information').innerHTML = ""
-		timer = 20
-		clearInterval(time)
-	}
-}
 
 
 /*
