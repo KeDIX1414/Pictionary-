@@ -1,6 +1,7 @@
 var socket = io();
 var canvas = document.getElementById('canvas')
 var paint = false
+var timer = 20
 
 // Find the color the user has selected
 function getColor() {
@@ -36,6 +37,10 @@ function getColor() {
 	return color
 }
 
+/*
+Handles sending guesses to the server and alerting players if their guess is correct
+*/
+
 function guessSubmitted() {
 	var guess = document.getElementById('textbox').value;
 	socket.emit('sentguess', guess);
@@ -43,19 +48,36 @@ function guessSubmitted() {
 
 socket.on('guesser_guessreceived', function(answer) {
 	if (answer === 'correct') {
-		alert('You guessed correctly!');
+		document.getElementById('guess_information').innerHTML = "You guessed correctly, the next round will begin shortly!";
 	} else {
-		alert("You guessed incorrectly. Try again!");
+		document.getElementById('guess_information').innerHTML = "You guessed incorrectly! Try again!";
 	}
 });
 
-socket.on('drawer_guessreceived', function(answer) {
+socket.on('drawer_guessreceived', function(answer, guess) {
 	if (answer === 'correct') {
-		alert('Your partner guessed correctly!');
+		document.getElementById('guess_information').innerHTML = "Your partner guessed correctly! The next round will begin shortly!";
 	} else {
-		alert("Your partner just guessed incorectly. Keep trying!");
+		document.getElementById('guess_information').innerHTML = "Your partner just guessed " + guess + " . Keep trying!"
 	}
 });
+
+/*
+Handling the timer display
+*/
+socket.on('starttimer', function() {
+	var time = setInterval(countdown, 1000)
+})
+
+function countdown() {
+	timer = timer - 1
+	document.getElementById('countdown').innerHTML = timer.toString();
+	if (timer === 0) {
+		document.getElementById('guess_information').innerHTML = ""
+		timer = 20
+		clearInterval(time)
+	}
+}
 
 
 /*
