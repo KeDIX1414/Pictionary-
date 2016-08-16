@@ -12,6 +12,7 @@ var playing = false;
 var round = 0;
 
 var words = ["sun", "moon", "star", "sky"];
+var wordsTwo = ["boy", "store", "swimming", "computer"];
 
 app.get('/', function(req, res){
 	res.sendfile('PictionarySite.html');
@@ -94,6 +95,12 @@ process.on( 'SIGINT', function() {
     process.exit( );
 });
 
+
+function readFile() {
+  file = "arguments.txts";
+  var reader = new FileReader();
+  reader.readAsText(file);
+}
 /* This section handles the Pictionary gameplay logic.*/
 
 function startGame() {
@@ -122,7 +129,7 @@ function startGame() {
     console.log(players[sockets[i]])
   }
   playing = true;
-  var time = setInterval(swapPartners, 20000)
+  var time = setInterval(swapPartners, 25000)
 
   function swapPartners() {
     playing = false;
@@ -143,7 +150,7 @@ function startGame() {
       endGame();
     }
     playing = true;
-    //io.sockets.emit('starttimer');
+    io.sockets.emit('starttimer');
   }
 }
 
