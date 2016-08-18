@@ -71,7 +71,7 @@ io.on('connection', function(socket){
         return;
       }
       var answer = "";
-      if (guess === words[round]) {
+      if ((guess === words[round] && players[socket.id].group === 1) || (guess === wordsTwo[round] && players[socket.id].group === 2)){
         answer = "correct"
         socket.emit('guesser_guessreceived', answer);
         socket.broadcast.to(players[socket.id].partner).emit('drawer_guessreceived', answer, guess);
@@ -111,18 +111,23 @@ function startGame() {
     process.exit();
   }
   for (i = 0; i < sockets.length; i++) {
-    //console.log(players[sockets[i - 1]]);
+    var groupNum = 1;
+    if (i >= sockets.length / 2 && sockets.length > 2) {
+      groupNum = 2;
+    }
     if (i % 2 === 0) {
       console.log("drawer" + "  " + sockets[i].id);
-      players[sockets[i]] = {type: "drawer", partner: sockets[i + 1]};
+      players[sockets[i]] = {type: "drawer", partner: sockets[i + 1], group: groupNum};
     } else {
       console.log("guesser" + "  " + sockets[i].id);
-      players[sockets[i]] = {type: "guesser", partner: sockets[i - 1]} ;
+      players[sockets[i]] = {type: "guesser", partner: sockets[i - 1], group: groupNum};
 
     }
   }
   word = words[0];
-  io.sockets.emit('setroles', players, word);
+  wordTwo = wordsTwo[0];
+  console.log(word + "  " + wordTwo)
+  io.sockets.emit('setroles', players, word, wordTwo);
   io.sockets.emit('starttimer');
 
   for (i = 0; i < sockets.length; i++) {
@@ -143,8 +148,10 @@ function startGame() {
       }
     }
     round = round + 1;
-    word = words[round]
-    io.sockets.emit('setroles', players, word);
+    word = words[round];
+    wordTwo = wordsTwo[round];
+    console.log(word + "  " + wordTwo)
+    io.sockets.emit('setroles', players, word, wordTwo);
     if (round === 4) {
       clearInterval(time);
       endGame();
