@@ -183,12 +183,16 @@ socket.on('clearcanvas', function() {
 	context.clearRect(0, 0, canvas.width, canvas.height);
 });
 
-socket.on('setroles', function(players, word) {
+socket.on('setroles', function(players, word, wordTwo) {
 	var text;
 	if (players["/#" + socket.id].type === "guesser") {
 		text = "You are guesser this round. When you think you know what your partner is drawing, enter your guess in the textbox."
 	} else {
-		text = "You are a drawer this round. Please draw a " + word + " . We will let you know what your partner guesses."
+		if (players["/#" + socket.id].group === 1) {
+			text = "You are a drawer this round. Please draw a " + word + ". We will let you know what your partner guesses."
+		} else {
+			text = "You are a drawer this round. Please draw a " + wordTwo + ". We will let you know what your partner guesses."
+		}
 	}
 	document.getElementById('text').innerHTML = text;
 });
