@@ -1,7 +1,10 @@
+//style="margin-bottom:50px;"
 var socket = io();
 var canvas = document.getElementById('canvas')
 var paint = false
 var timer = 20
+//window.moveTo(0,0);
+//window.resizeTo(screen.width,screen.height);
 
 // Find the color the user has selected
 function getColor() {
@@ -48,17 +51,17 @@ function guessSubmitted() {
 
 socket.on('guesser_guessreceived', function(answer) {
 	if (answer === 'correct') {
-		document.getElementById('guess_information').innerHTML = "You guessed correctly, the next round will begin shortly!";
+		document.getElementById('text').innerHTML = "You guessed correctly, the next round will begin shortly!";
 	} else {
-		document.getElementById('guess_information').innerHTML = "You guessed incorrectly! Try again!";
+		document.getElementById('text').innerHTML = "You guessed incorrectly! Try again!";
 	}
 });
 
 socket.on('drawer_guessreceived', function(answer, guess) {
 	if (answer === 'correct') {
-		document.getElementById('guess_information').innerHTML = "Your partner guessed correctly! The next round will begin shortly!";
+		document.getElementById('text').innerHTML = "Your partner guessed correctly! The next round will begin shortly!";
 	} else {
-		document.getElementById('guess_information').innerHTML = "Your partner just guessed " + guess + " . Keep trying!"
+		document.getElementById('text').innerHTML = "Your partner just guessed \"" + guess + "\". Keep trying!"
 	}
 });
 
@@ -66,14 +69,16 @@ socket.on('drawer_guessreceived', function(answer, guess) {
 Handling the timer display
 */
 socket.on('starttimer', function() {
-	document.getElementById('countdown').innerHTML = timer.toString();
+	document.getElementById('countdown').innerHTML = "Time Left: " + timer.toString();
 	var time = setInterval(function() {
 		timer = timer - 1;
-		document.getElementById('countdown').innerHTML = timer.toString();
+		document.getElementById('countdown').innerHTML = "Time Left: " + timer.toString();
 		if (timer === -1) {
 			document.getElementById('guess_information').innerHTML = ""
 			timer = 20
 			document.getElementById('countdown').innerHTML = "The next round will begin shortly!"
+			document.getElementById('text').innerHTML = "";
+			document.getElementById('clue').innerHTML = "";
 			clearInterval(time)
 		}
 	}, 1000);
@@ -87,8 +92,7 @@ coordinates to the server. The server is responsible for sending the coordinates
 be drawn on their screens in real time. If a player is not designated as a "drawer", the server will not send the coordinates.*/
 
 canvas.addEventListener('click', function(e) {
-
-	var totalOffsetX = 0;
+	/*var totalOffsetX = 0;
     var totalOffsetY = 0;
     var canvasX = 0;
     var canvasY = 0;
@@ -101,7 +105,11 @@ canvas.addEventListener('click', function(e) {
     while(currentElement = currentElement.offsetParent)
 
     x = e.pageX - totalOffsetX;
-    y = e.pageY - totalOffsetY;
+    y = e.pageY - totalOffsetY;*/
+    x = e.pageX-canvas.offsetLeft;
+	y = e.pageY-canvas.offsetTop;
+	currentX = x
+	currentY = y
 	var coordinates = {xPos: x, yPos: y};
 	socket.emit('sentclick', coordinates);
 
@@ -109,13 +117,13 @@ canvas.addEventListener('click', function(e) {
 
 socket.on('drawclick', function(coordinates) {
 	context = canvas.getContext("2d")
-	context.fillStyle = coordinates.colors
+	//context.fillStyle = coordinates.colors
 	context.fillRect(coordinates.xPos, coordinates.yPos, 2, 2)
 });
 
 canvas.addEventListener('mousedown', function(e) {
 	paint = true;
-	var totalOffsetX = 0;
+	/*var totalOffsetX = 0;
     var totalOffsetY = 0;
     var canvasX = 0;
     var canvasY = 0;
@@ -128,17 +136,19 @@ canvas.addEventListener('mousedown', function(e) {
     while(currentElement = currentElement.offsetParent)
 
     x = e.pageX - totalOffsetX;
-    y = e.pageY - totalOffsetY;
+    y = e.pageY - totalOffsetY;*/
+    x = e.pageX-canvas.offsetLeft;
+	y = e.pageY-canvas.offsetTop;
 	currentX = x
 	currentY = y
-	var coordinates = {xPos: x, yPos: y, colors: getColor()};
+	var coordinates = {xPos: x, yPos: y};
 	socket.emit('sentclick', coordinates);
 
 }, false);
 
 canvas.addEventListener('mousemove', function(e) {
 	if (paint) {
-		var totalOffsetX = 0;
+		/*var totalOffsetX = 0;
     	var totalOffsetY = 0;
     	var canvasX = 0;
     	var canvasY = 0;
@@ -151,8 +161,10 @@ canvas.addEventListener('mousemove', function(e) {
     	while(currentElement = currentElement.offsetParent)
 
     	x = e.pageX - totalOffsetX;
-    	y = e.pageY - totalOffsetY;
-		var coordinates = {xInit: currentX, yInit: currentY, xFin: x, yFin: y, colors: getColor()};
+    	y = e.pageY - totalOffsetY;*/
+    	x = e.pageX-canvas.offsetLeft;
+		y = e.pageY-canvas.offsetTop;
+		var coordinates = {xInit: currentX, yInit: currentY, xFin: x, yFin: y};
 		socket.emit('sentline', coordinates);
 		currentX = x
 		currentY = y
@@ -162,7 +174,7 @@ canvas.addEventListener('mousemove', function(e) {
 
 socket.on('drawline', function(coordinates) {
 	context = canvas.getContext("2d")
-	context.strokeStyle = coordinates.colors
+	//context.strokeStyle = coordinates.colors
 	context.beginPath()
 	context.moveTo(coordinates.xInit, coordinates.yInit)
 	context.lineTo(coordinates.xFin, coordinates.yFin)
@@ -185,13 +197,18 @@ socket.on('clearcanvas', function() {
 
 socket.on('setroles', function(players, word, wordTwo) {
 	var text;
+	var clue;
 	if (players["/#" + socket.id].type === "guesser") {
 		text = "You are guesser this round. When you think you know what your partner is drawing, enter your guess in the textbox."
 	} else {
 		if (players["/#" + socket.id].group === 1) {
-			text = "You are a drawer this round. Please draw a " + word + ". We will let you know what your partner guesses."
+			text = "You are a drawer this round. We will let you know what your partner guesses."
+			clue = "DRAW: " + word;
+			document.getElementById('clue').innerHTML = clue;
 		} else {
-			text = "You are a drawer this round. Please draw a " + wordTwo + ". We will let you know what your partner guesses."
+			text = "You are a drawer this round. We will let you know what your partner guesses."
+			clue = "DRAW: " + wordTwo;
+			document.getElementById('clue').innerHTML = clue;
 		}
 	}
 	document.getElementById('text').innerHTML = text;
