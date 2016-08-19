@@ -2,43 +2,31 @@
 	<head>
 		<title> Cultural Evolution of Language Lab's Pictionary Game </title>
 		<style>
-		body {font-family: arial ;background-color: rgb(185, 179, 175); color: Red;}
+		body {font-family: arial ;background-color: rgb(211, 211, 211); color: Red;}
 		h1 {background-color: Blue; color: rgb(200, 255, 255);}
 		#wrapper {position:relative; width:400px; height:400px; margin:0 auto; padding-top:75px;}
 		#canvas {background-color: White; cursor:crosshair;}
 		.noscript { padding:50px 30px 0 40px; width:820px;}
-		#selector_one {position:absolute; z-index:99999;  margin-top:-30px; margin-right:50px;}
-		select {font-family:Verdana, Geneva, sans-serif; font_size:12px; background-color: Grey;}
 		</style>
 	</head>
 	<script src="/socket.io/socket.io.js"></script>
 	<body>
 		<h1> Let's Play Pictionary </h1>
 		<p> INSTRUCTIONS:  
-      <ol>
-        <li> Like a typical game of Pictionary, you will take turns drawing pictures for your partner to guess 
-        <li> You will take turns drawing and guessing.
-        <li> When it is your turn to draw, you will have one minute to draw a specific object. You will be told your partners guesses. 
-      </ol>
-    </p>
-		<div id="wrapper">
-			<p id="countdown">20</p>
-			<p id="guess_information">   </p>
-			<p id="text" style="margin-bottom:50px;">Thank you for your patience. The game will begin shortly. Do not refresh the page.</p>
-			<select name="color_menu" id="selector_one" >
-				<option value="black">Black</option>
-				<option value="brown">Brown</option>
-				<option value="red">Red</option>
-				<option value="blue">Blue</option>
-				<option value="orange">Orange</option>
-				<option value="yellow">Yellow</option>
-				<option value="purple">Purple</option>
-				<option value="green">Green</option>
-			</select>
+      		<ol>
+        		<li> In this game, you and your partner will take turns drawing pictures and guessing what your partner is drawing. Each round will last for one minute.
+        		<li> When you are the drawer, you will be told an image to draw at the beginning of the round. Draw this image in the canvas using your cursor. The round will end if your partner guesses correctly. If your partner guesses incorrectly, you will be alerted and told what they guessed.
+        		<li> When you are the guesser, look at what your partner draws on the canvas. When you think you know what the image is, write your guess in the textbox. You will be todl whether or not you guessed correctly or incorrectly.
+      		</ol>
+    	</p>
+    	<p style="color:black; font-size: 200%"> WARNING: Do not refresh this page until the experiment is over! </p>
+			<p id="countdown"> </p>
+			<p id="guess_information" > </p>
+			<p id="text" >Thank you for your patience. The game will begin shortly. Do not refresh the page.</p>
+			<p id="clue" style= "color:black;"> </p>
 			<canvas id="canvas" width=300 height=300 > </canvas>
 			<script src="canvas.js"></script>
 			<textarea id="textbox"> Input your guess here. </textarea>
-			<button onclick="guessSubmitted()">Submit Guess!</button>
-		</div>		
+			<button onclick="guessSubmitted()">Submit Guess!</button>		
 	</body>
 </html>

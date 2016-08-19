@@ -45,6 +45,7 @@ io.on('connection', function(socket){
       //var player = players.get(socket)
       //console.log(socket.id + "   " + players[socket].myID + "  " + players[socket].status + "  " + players[socket].type);
       if (player.type === 'drawer') {
+        console.log(coordinates.xPos + "  " + coordinates.yPos);
     	  //io.sockets.emit('drawclick', coordinates);
         socket.emit('drawclick', coordinates);
         socket.broadcast.to(players[socket.id].partner).emit('drawclick', coordinates);
@@ -53,6 +54,7 @@ io.on('connection', function(socket){
 
     // handle when a line is drawn
     socket.on("sentline", function (coordinates) {
+      console.log("line");
       if (!playing) {
         return;
       }
@@ -71,7 +73,12 @@ io.on('connection', function(socket){
         return;
       }
       var answer = "";
-      if ((guess === words[round] && players[socket.id].group === 1) || (guess === wordsTwo[round] && players[socket.id].group === 2)){
+      if (guess === words[round] && players[socket.id].group === 1) {
+        answer = "correct"
+        socket.emit('guesser_guessreceived', answer);
+        socket.broadcast.to(players[socket.id].partner).emit('drawer_guessreceived', answer, guess);
+      } 
+      else if (guess === wordsTwo[round] && players[socket.id].group === 2) {
         answer = "correct"
         socket.emit('guesser_guessreceived', answer);
         socket.broadcast.to(players[socket.id].partner).emit('drawer_guessreceived', answer, guess);
