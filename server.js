@@ -1,5 +1,6 @@
 //var app = require('express')();
 var express = require('express');
+var fs = require('fs');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http); //app
@@ -13,6 +14,8 @@ var round = 0;
 
 var words = ["sun", "moon", "star", "sky"];
 var wordsTwo = ["boy", "store", "swimming", "computer"];
+var results = new String();
+var stream = fs.createWriteStream("my_file.txt");
 
 app.get('/', function(req, res){
 	res.sendfile('PictionarySite.html');
@@ -25,6 +28,7 @@ setTimeout(startGame, 20000);
 
 // controls what to do when players connect and disconnect
 io.on('connection', function(socket){
+  stream.write(timeStamp() + " " + socket.id + " connected\n")
   numPlayers = numPlayers + 1;
 	console.log('a user connected');
   console.log("" + socket.id)
@@ -34,6 +38,7 @@ io.on('connection', function(socket){
   	socket.on('disconnect', function(){
   		//delete players.get(socket);
     	console.log('user disconnected');
+      endGame();
     });
 
     // handle when someone clicks
@@ -45,7 +50,6 @@ io.on('connection', function(socket){
       //var player = players.get(socket)
       //console.log(socket.id + "   " + players[socket].myID + "  " + players[socket].status + "  " + players[socket].type);
       if (player.type === 'drawer') {
-        console.log(coordinates.xPos + "  " + coordinates.yPos);
     	  //io.sockets.emit('drawclick', coordinates);
         socket.emit('drawclick', coordinates);
         socket.broadcast.to(players[socket.id].partner).emit('drawclick', coordinates);
@@ -54,7 +58,6 @@ io.on('connection', function(socket){
 
     // handle when a line is drawn
     socket.on("sentline", function (coordinates) {
-      console.log("line");
       if (!playing) {
         return;
       }
@@ -72,6 +75,7 @@ io.on('connection', function(socket){
       if (players[socket.id].type === "drawer") {
         return;
       }
+      stream.write(timeStamp() + "  " + socket.id + " guesses " + guess + "\n");
       var answer = "";
       if (guess === words[round] && players[socket.id].group === 1) {
         answer = "correct"
@@ -103,10 +107,17 @@ process.on( 'SIGINT', function() {
 });
 
 
-function readFile() {
-  file = "arguments.txts";
-  var reader = new FileReader();
-  reader.readAsText(file);
+function timeStamp() {
+  var now = new Date();
+  var date = [now.getMonth() + 1, now.getDate(), now.getFullYear()];
+  var time = [now.getHours(), now.getMinutes(), now.getSeconds()];
+  // If seconds and minutes are less than 10, adda zero
+  for (var i = 1; i < 3; i++) {
+    if (time[i] < 10) {
+      time[i] = "0" + time[i];
+    }
+  }
+  return date.join("/") + " " + time.join(":");
 }
 /* This section handles the Pictionary gameplay logic.*/
 
@@ -140,6 +151,7 @@ function startGame() {
   for (i = 0; i < sockets.length; i++) {
     console.log(players[sockets[i]])
   }
+  stream.write("\n" + timeStamp() + " Round 1 Starting\nGroup 1 word = " + words[0] + "\nGroup 2 word = " + wordsTwo[0] + "\n");
   playing = true;
   var time = setInterval(swapPartners, 25000)
 
@@ -163,6 +175,8 @@ function startGame() {
       clearInterval(time);
       endGame();
     }
+    var newRound = round + 1;
+    stream.write("\n" + timeStamp() + " Round " + newRound + " Starting\nGroup 1 word = " + words[round] + "\nGroup 2 word = " + wordsTwo[round] + "\n");
     playing = true;
     io.sockets.emit('starttimer');
   }
@@ -171,5 +185,6 @@ function startGame() {
 
 function endGame() {
   playing = false;
+  stream.write(timeStamp() + " Experiment ending!");
   process.exit();
 }
