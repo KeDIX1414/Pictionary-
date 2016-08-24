@@ -16,7 +16,7 @@ var words = ["sun", "moon", "star", "sky"];
 var wordsTwo = ["boy", "store", "swimming", "computer"];
 var results = new String();
 var stream = fs.createWriteStream("my_file.txt");
-
+stream.write(timeStamp() + "Experiment Starting!\n")
 app.get('/', function(req, res){
 	res.sendfile('PictionarySite.html');
 });
@@ -53,6 +53,7 @@ io.on('connection', function(socket){
     	  //io.sockets.emit('drawclick', coordinates);
         socket.emit('drawclick', coordinates);
         socket.broadcast.to(players[socket.id].partner).emit('drawclick', coordinates);
+        stream.write(timeStamp() + " " + socket.id + " (" + coordinates.xPos + "," + coordinates.yPos + ")\n");
       }
     });
 
@@ -67,6 +68,7 @@ io.on('connection', function(socket){
         //io.sockets.emit('drawline', coordinates);
         socket.emit('drawline', coordinates);
         socket.broadcast.to(players[socket.id].partner).emit('drawline', coordinates);
+        stream.write(timeStamp() + " " + socket.id + " (" + coordinates.xFin + "," + coordinates.yFin + ")\n");
       }
     });
 
@@ -171,7 +173,7 @@ function startGame() {
     wordTwo = wordsTwo[round];
     console.log(word + "  " + wordTwo)
     io.sockets.emit('setroles', players, word, wordTwo);
-    if (round === 4) {
+    if (round === 1) {
       clearInterval(time);
       endGame();
     }
