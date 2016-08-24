@@ -6,39 +6,6 @@ var timer = 20
 //window.moveTo(0,0);
 //window.resizeTo(screen.width,screen.height);
 
-// Find the color the user has selected
-function getColor() {
-	var select = document.getElementById("selector_one");
-	var option = select.options[select.selectedIndex].value;
-	var color = ""
-	switch (option) {
-		case "red":
-			color = "red"
-			break
-		case "blue":
-			color = "blue"
-			break
-		case "black":
-			color = "black"
-			break
-		case "brown":
-			color = "brown"
-			break
-		case "orange":
-			color = "orange"
-			break
-		case "yellow":
-			color = "yellow"
-			break
-		case "purple":
-			color = "purple"
-			break
-		case "green":
-			color = "green"
-			break
-	}
-	return color
-}
 
 /*
 Handles sending guesses to the server and alerting players if their guess is correct
@@ -92,20 +59,6 @@ coordinates to the server. The server is responsible for sending the coordinates
 be drawn on their screens in real time. If a player is not designated as a "drawer", the server will not send the coordinates.*/
 
 canvas.addEventListener('click', function(e) {
-	/*var totalOffsetX = 0;
-    var totalOffsetY = 0;
-    var canvasX = 0;
-    var canvasY = 0;
-    var currentElement = canvas;
-
-    do{
-        totalOffsetX += currentElement.offsetLeft - currentElement.scrollLeft;
-        totalOffsetY += currentElement.offsetTop - currentElement.scrollTop;
-    }
-    while(currentElement = currentElement.offsetParent)
-
-    x = e.pageX - totalOffsetX;
-    y = e.pageY - totalOffsetY;*/
     x = e.pageX-canvas.offsetLeft;
 	y = e.pageY-canvas.offsetTop;
 	currentX = x
@@ -123,20 +76,6 @@ socket.on('drawclick', function(coordinates) {
 
 canvas.addEventListener('mousedown', function(e) {
 	paint = true;
-	/*var totalOffsetX = 0;
-    var totalOffsetY = 0;
-    var canvasX = 0;
-    var canvasY = 0;
-    var currentElement = canvas;
-
-    do{
-        totalOffsetX += currentElement.offsetLeft - currentElement.scrollLeft;
-        totalOffsetY += currentElement.offsetTop - currentElement.scrollTop;
-    }
-    while(currentElement = currentElement.offsetParent)
-
-    x = e.pageX - totalOffsetX;
-    y = e.pageY - totalOffsetY;*/
     x = e.pageX-canvas.offsetLeft;
 	y = e.pageY-canvas.offsetTop;
 	currentX = x
@@ -148,20 +87,6 @@ canvas.addEventListener('mousedown', function(e) {
 
 canvas.addEventListener('mousemove', function(e) {
 	if (paint) {
-		/*var totalOffsetX = 0;
-    	var totalOffsetY = 0;
-    	var canvasX = 0;
-    	var canvasY = 0;
-    	var currentElement = canvas;
-
-    	do{
-        	totalOffsetX += currentElement.offsetLeft - currentElement.scrollLeft;
-        	totalOffsetY += currentElement.offsetTop - currentElement.scrollTop;
-    	}
-    	while(currentElement = currentElement.offsetParent)
-
-    	x = e.pageX - totalOffsetX;
-    	y = e.pageY - totalOffsetY;*/
     	x = e.pageX-canvas.offsetLeft;
 		y = e.pageY-canvas.offsetTop;
 		var coordinates = {xInit: currentX, yInit: currentY, xFin: x, yFin: y};
@@ -212,6 +137,11 @@ socket.on('setroles', function(players, word, wordTwo) {
 		}
 	}
 	document.getElementById('text').innerHTML = text;
+});
+
+socket.on('endgame', function() {
+	alert('hi!')
+	document.getElementById('countdown').innerHTML = "The experiment is over. Thank you for your participation!"
 });
 
 
