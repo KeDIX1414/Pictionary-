@@ -12,11 +12,42 @@ var numPlayers = 0;
 var playing = false;
 var round = 0;
 
-var words = ["sun", "moon", "star", "sky"];
-var wordsTwo = ["boy", "store", "swimming", "computer"];
+var words = new Array();/*= ["sun", "moon", "star", "sky", "cloud", "storm", "comet", "planet"];*/
+var wordsTwo = new Array(); /*= ["boy", "store", "swimming", "computer", "cloud", "storm", "comet", "planet"];*/
 var results = new String();
 var stream = fs.createWriteStream("my_file.txt");
-stream.write(timeStamp() + "Experiment Starting!\n")
+stream.write(timeStamp() + " Experiment Starting!\n")
+/*var buf = new Buffer(1024);
+// read in the words
+console.log("Going to open file");
+fs.open('arguments.txt', 'r+', function(err, fd) {
+   if (err) {
+       return console.error(err);
+   }
+   console.log("File opened successfully!");
+   console.log("Going to read the file");
+   fs.read(fd, buf, 0, buf.length, 0, function(err, bytes){
+      if (err){
+         console.log(err);
+      }
+
+      // Print only read bytes to avoid junk.
+      if(bytes > 0){
+        var str = buf.slice(0, bytes).toString();
+        console.log(str)
+        
+      }
+      // Close the opened file.
+      fs.close(fd, function(err){
+         if (err){
+            console.log(err);
+         } 
+         console.log("File closed successfully.");
+      });
+   });
+});*/
+
+
 app.get('/', function(req, res){
 	res.sendfile('PictionarySite.html');
 });
@@ -38,12 +69,13 @@ io.on('connection', function(socket){
   	socket.on('disconnect', function(){
   		//delete players.get(socket);
     	console.log('user disconnected');
+      stream.write(timeStamp() + " " + socket.id + " disconnected\n");
       endGame();
     });
 
     // handle when someone clicks
     socket.on("sentclick", function (coordinates) {
-      if (!playing) { 
+      if (!playing || !players[socket.id].playing) { 
         return; 
       }
       var player = players[socket.id];
@@ -53,13 +85,13 @@ io.on('connection', function(socket){
     	  //io.sockets.emit('drawclick', coordinates);
         socket.emit('drawclick', coordinates);
         socket.broadcast.to(players[socket.id].partner).emit('drawclick', coordinates);
-        stream.write(timeStamp() + " " + socket.id + " (" + coordinates.xPos + "," + coordinates.yPos + ")\n");
+        //stream.write(timeStamp() + " " + socket.id + " (" + coordinates.xPos + "," + coordinates.yPos + ")\n");
       }
     });
 
     // handle when a line is drawn
     socket.on("sentline", function (coordinates) {
-      if (!playing) {
+      if (!playing || !players[socket.id].playing) {
         return;
       }
       var player = players[socket.id];
@@ -68,13 +100,18 @@ io.on('connection', function(socket){
         //io.sockets.emit('drawline', coordinates);
         socket.emit('drawline', coordinates);
         socket.broadcast.to(players[socket.id].partner).emit('drawline', coordinates);
-        stream.write(timeStamp() + " " + socket.id + " (" + coordinates.xFin + "," + coordinates.yFin + ")\n");
+        //stream.write(timeStamp() + " " + socket.id + " (" + coordinates.xFin + "," + coordinates.yFin + ")\n");
       }
+    });
+
+    socket.on("roundover", function() {
+      players[socket.id].playing = false;
     });
 
     // handle when a player guesses
     socket.on('sentguess', function(guess) {
-      if (players[socket.id].type === "drawer") {
+      guess = guess.toLowerCase();
+      if (players[socket.id].type === "drawer" || !playing || !players[socket.id].playing) {
         return;
       }
       stream.write(timeStamp() + "  " + socket.id + " guesses " + guess + "\n");
@@ -83,11 +120,15 @@ io.on('connection', function(socket){
         answer = "correct"
         socket.emit('guesser_guessreceived', answer);
         socket.broadcast.to(players[socket.id].partner).emit('drawer_guessreceived', answer, guess);
+        players[socket.id].playing = false;
+        players[players[socket.id].partner].playing = false;
       } 
       else if (guess === wordsTwo[round] && players[socket.id].group === 2) {
         answer = "correct"
         socket.emit('guesser_guessreceived', answer);
         socket.broadcast.to(players[socket.id].partner).emit('drawer_guessreceived', answer, guess);
+        players[socket.id].playing = false;
+        players[players[socket.id.partner]].playing = false;
       } else {
         answer = "incorrect"
         socket.emit('guesser_guessreceived', answer);
@@ -121,6 +162,20 @@ function timeStamp() {
   }
   return date.join("/") + " " + time.join(":");
 }
+
+/**
+ * Randomize array element order in-place.
+ * Using Durstenfeld shuffle algorithm.
+ */
+function shuffleArray(array) {
+  for (var i = array.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
+  }
+  return array;
+}
 /* This section handles the Pictionary gameplay logic.*/
 
 function startGame() {
@@ -130,17 +185,19 @@ function startGame() {
     console.log("Shutting down. Can't play with an odd number of players!!!");
     process.exit();
   }
+  sockets = shuffleArray(sockets);
   for (i = 0; i < sockets.length; i++) {
     var groupNum = 1;
     if (i >= sockets.length / 2 && sockets.length > 2) {
       groupNum = 2;
     }
     if (i % 2 === 0) {
+      stream.write("drawer: " + sockets[i] + "   guesser: " + sockets[i+1] + "\n");
       console.log("drawer" + "  " + sockets[i].id);
-      players[sockets[i]] = {type: "drawer", partner: sockets[i + 1], group: groupNum};
+      players[sockets[i]] = {type: "drawer", partner: sockets[i + 1], group: groupNum, playing: true};
     } else {
       console.log("guesser" + "  " + sockets[i].id);
-      players[sockets[i]] = {type: "guesser", partner: sockets[i - 1], group: groupNum};
+      players[sockets[i]] = {type: "guesser", partner: sockets[i - 1], group: groupNum, playing: true};
 
     }
   }
@@ -162,6 +219,7 @@ function startGame() {
     io.sockets.emit('clearcanvas');
     console.log("Swapping players ");
     for (i = 0; i < sockets.length; i++) {
+      players[sockets[i]].playing = true;
       if (players[sockets[i]].type === "guesser") {
         players[sockets[i]].type = "drawer";
       } else {
@@ -173,7 +231,7 @@ function startGame() {
     wordTwo = wordsTwo[round];
     console.log(word + "  " + wordTwo)
     io.sockets.emit('setroles', players, word, wordTwo);
-    if (round === 1) {
+    if (round === 8) {
       clearInterval(time);
       endGame();
     }
