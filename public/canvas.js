@@ -46,6 +46,7 @@ socket.on('starttimer', function() {
 			document.getElementById('countdown').innerHTML = "The next round will begin shortly!"
 			document.getElementById('text').innerHTML = "";
 			document.getElementById('clue').innerHTML = "";
+			socket.emit('roundover');
 			clearInterval(time)
 		}
 	}, 1000);
@@ -139,7 +140,7 @@ socket.on('setroles', function(players, word, wordTwo) {
 	document.getElementById('text').innerHTML = text;
 });
 
-socket.on('endgame', function() {
+socket.on('endmessage', function() {
 	alert('hi!')
 	document.getElementById('countdown').innerHTML = "The experiment is over. Thank you for your participation!"
 });
