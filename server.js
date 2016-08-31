@@ -17,7 +17,7 @@ var wordsTwo = new Array(); /*= ["boy", "store", "swimming", "computer", "cloud"
 var results = new String();
 var stream = fs.createWriteStream("my_file.txt");
 stream.write(timeStamp() + " Experiment Starting!\n")
-/*var buf = new Buffer(1024);
+var buf = new Buffer(1024);
 // read in the words
 console.log("Going to open file");
 fs.open('arguments.txt', 'r+', function(err, fd) {
@@ -34,9 +34,21 @@ fs.open('arguments.txt', 'r+', function(err, fd) {
       // Print only read bytes to avoid junk.
       if(bytes > 0){
         var str = buf.slice(0, bytes).toString();
-        console.log(str)
-        
+        //console.log(str)
+        var allWords = new Array();
+        allWords = str.split("\n");
+        console.log(allWords.length)
+        //wordsTwo = allWords.slice(9, 17); 
       }
+      for (i = 0; i < allWords.length; i++) {
+        if (i < 8) {
+          words.push(allWords[i]);
+        } else {
+          console.log("here")
+          wordsTwo.push(allWords[i]);
+        }
+      }
+      console.log(words)
       // Close the opened file.
       fs.close(fd, function(err){
          if (err){
@@ -45,7 +57,7 @@ fs.open('arguments.txt', 'r+', function(err, fd) {
          console.log("File closed successfully.");
       });
    });
-});*/
+});
 
 
 app.get('/', function(req, res){
