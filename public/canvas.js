@@ -35,21 +35,15 @@ socket.on('drawer_guessreceived', function(answer, guess) {
 /*
 Handling the timer display
 */
-socket.on('starttimer', function() {
-	document.getElementById('countdown').innerHTML = "Time Left: " + timer.toString();
-	var time = setInterval(function() {
-		timer = timer - 1;
-		document.getElementById('countdown').innerHTML = "Time Left: " + timer.toString();
-		if (timer === -1) {
-			document.getElementById('guess_information').innerHTML = ""
-			timer = 20
-			document.getElementById('countdown').innerHTML = "The next round will begin shortly!"
-			document.getElementById('text').innerHTML = "";
-			document.getElementById('clue').innerHTML = "";
-			socket.emit('roundover');
-			clearInterval(time)
-		}
-	}, 1000);
+socket.on('starttimer', function(countdown) {
+	document.getElementById('countdown').innerHTML = "Time Left: " + countdown;
+	if (countdown === -1) {
+		document.getElementById('guess_information').innerHTML = ""
+		document.getElementById('countdown').innerHTML = "The next round will begin shortly!"
+		document.getElementById('text').innerHTML = "";
+		document.getElementById('clue').innerHTML = "";
+		socket.emit('roundover');
+	}
 })
 
 
@@ -137,6 +131,7 @@ socket.on('setroles', function(players, word, wordTwo) {
 			document.getElementById('clue').innerHTML = clue;
 		}
 	}
+	document.getElementById('countdown').innerHTML = "Time Left: 20"
 	document.getElementById('text').innerHTML = text;
 });
 
