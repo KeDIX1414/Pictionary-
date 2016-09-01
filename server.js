@@ -217,15 +217,22 @@ function startGame() {
   wordTwo = wordsTwo[0];
   console.log(word + "  " + wordTwo)
   io.sockets.emit('setroles', players, word, wordTwo);
-  io.sockets.emit('starttimer');
-
   for (i = 0; i < sockets.length; i++) {
     console.log(players[sockets[i]])
   }
   stream.write("\n" + timeStamp() + " Round 1 Starting\nGroup 1 word = " + words[0] + "\nGroup 2 word = " + wordsTwo[0] + "\n");
   playing = true;
   var time = setInterval(swapPartners, 25000)
-
+  var countdown = 19
+  var interval = setInterval(function() {
+    console.log(countdown.toString());
+    io.sockets.emit('starttimer', countdown);
+    if (countdown === -1) {
+      clearInterval(interval);
+      countdown = 19;
+    }
+    countdown = countdown - 1;
+  }, 1000)
   function swapPartners() {
     playing = false;
     io.sockets.emit('clearcanvas');
@@ -250,7 +257,17 @@ function startGame() {
     var newRound = round + 1;
     stream.write("\n" + timeStamp() + " Round " + newRound + " Starting\nGroup 1 word = " + words[round] + "\nGroup 2 word = " + wordsTwo[round] + "\n");
     playing = true;
-    io.sockets.emit('starttimer');
+    var countdown = 19
+    var interval = setInterval(function() {
+      console.log(countdown.toString());
+      io.sockets.emit('starttimer', countdown);
+      if (countdown === -1) {
+        clearInterval(interval);
+        countdown = 19;
+      }
+      countdown = countdown - 1;
+    }, 1000)
+    //io.sockets.emit('starttimer');
   }
 }
 
