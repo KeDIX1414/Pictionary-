@@ -8,6 +8,15 @@ var timer = 20
 
 
 /*
+Handle when user tries to refresh page
+*/
+
+window.onbeforeunload = function() {
+  return "If you refresh or leave this page, you will not be able to reenter this experiment and you will forfeit payment. Are you sure?";
+};
+
+
+/*
 Handles sending guesses to the server and alerting players if their guess is correct
 */
 
@@ -138,6 +147,14 @@ socket.on('setroles', function(players, word, wordTwo) {
 socket.on('endmessage', function() {
 	alert('hi!')
 	document.getElementById('countdown').innerHTML = "The experiment is over. Thank you for your participation!"
+});
+
+/*
+Force socket to disconnect
+*/
+
+socket.on('forceDisconnect', function(){
+    socket.disconnect();
 });
 
 
