@@ -15,6 +15,13 @@ window.onbeforeunload = function() {
   return "If you refresh or leave this page, you will not be able to reenter this experiment and you will forfeit payment. Are you sure?";
 };
 
+/*
+Handles alerting the server once the players are ready.
+*/
+function readyToPlay() {
+	socket.emit('readytoplay')
+	alert("Awesome! We will begin when everyone else is ready.")
+}
 
 /*
 Handles sending guesses to the server and alerting players if their guess is correct
