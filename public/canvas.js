@@ -1,9 +1,12 @@
 //style="margin-bottom:50px;"
 var socket = io();
 var canvas = document.getElementById('canvas')
-var paint = false
-var timer = 20
-//window.moveTo(0,0);
+var paint = false;
+var timer = 20;
+var ready = false;
+var currentX;
+var currentY;
+window.moveTo(0,0);
 //window.resizeTo(screen.width,screen.height);
 
 
@@ -12,15 +15,19 @@ Handle when user tries to refresh page
 */
 
 window.onbeforeunload = function() {
-  return "If you refresh or leave this page, you will not be able to reenter this experiment and you will forfeit payment. Are you sure?";
+  return "If you refresh or leave this page, you will not be able to reenter this experiment, and you will forfeit payment. Are you sure?";
 };
 
 /*
 Handles alerting the server once the players are ready.
 */
 function readyToPlay() {
-	socket.emit('readytoplay')
-	alert("Awesome! We will begin when everyone else is ready.")
+	if (ready) {
+		return;
+	}
+	socket.emit('readytoplay');
+	ready = true;
+	alert("Awesome! We will begin when everyone else is ready.");
 }
 
 /*
@@ -29,12 +36,13 @@ Handles sending guesses to the server and alerting players if their guess is cor
 
 function guessSubmitted() {
 	var guess = document.getElementById('textbox').value;
-	socket.emit('sentguess', guess);
+	socket.emit('sentguess', guess.replace(/\s/g, ""));
 }
 
 socket.on('guesser_guessreceived', function(answer) {
 	if (answer === 'correct') {
-		document.getElementById('text').innerHTML = "You guessed correctly, the next round will begin shortly!";
+		document.getElementById('text').style.color = "#000000";
+		document.getElementById('text').innerHTML = "YOU GUESSED CORRECTLY, THE NEXT ROUND WILL BEGIN SHORTLY!";
 	} else {
 		document.getElementById('text').innerHTML = "You guessed incorrectly! Try again!";
 	}
@@ -42,20 +50,39 @@ socket.on('guesser_guessreceived', function(answer) {
 
 socket.on('drawer_guessreceived', function(answer, guess) {
 	if (answer === 'correct') {
-		document.getElementById('text').innerHTML = "Your partner guessed correctly! The next round will begin shortly!";
+		document.getElementById('text').style.color = "#000000";
+		document.getElementById('text').innerHTML = "YOUR PARTNER GUESSED CORRECTLY! THE NEXT ROUND WILL BEGIN SHORTLY!";
+		document.getElementById('clue').innerHTML = "";
+
 	} else {
-		document.getElementById('text').innerHTML = "Your partner just guessed \"" + guess + "\". Keep trying!"
+		document.getElementById('text').innerHTML = "Your partner just guessed \"" + guess + "\". Keep trying!";
 	}
 });
 
 /*
 Handling the timer display
 */
-socket.on('starttimer', function(countdown) {
+socket.on('starttimer', function(countdown, wordOne, wordTwo, players) {
 	document.getElementById('countdown').innerHTML = "Time Left: " + countdown;
 	if (countdown === -1) {
 		document.getElementById('guess_information').innerHTML = ""
-		document.getElementById('countdown').innerHTML = "The next round will begin shortly!"
+		if (players["/#" + socket.id].group === 1) {
+			if (document.getElementById('text').innerHTML != "YOU GUESSED CORRECTLY, THE NEXT ROUND WILL BEGIN SHORTLY!"
+				&& players["/#" + socket.id].type === "guesser") {
+				document.getElementById('countdown').innerHTML = "The next round will begin shortly! The correct word was " + wordOne
+			} 
+			else {
+				document.getElementById('countdown').innerHTML = "The next round will begin shortly!"
+			}
+		} else {
+			if (document.getElementById('text').innerHTML != "YOU GUESSED CORRECTLY, THE NEXT ROUND WILL BEGIN SHORTLY!"
+				&& players["/#" + socket.id].type === "guesser") {
+				document.getElementById('countdown').innerHTML = "The next round will begin shortly! The correct word was " + wordTwo			
+			} else {
+				document.getElementById('countdown').innerHTML = "The next round will begin shortly!"
+			}
+		}
+		document.getElementById('text').style.color = "red";
 		document.getElementById('text').innerHTML = "";
 		document.getElementById('clue').innerHTML = "";
 		socket.emit('roundover');
@@ -147,9 +174,10 @@ socket.on('setroles', function(players, word, wordTwo) {
 			document.getElementById('clue').innerHTML = clue;
 		}
 	}
-	document.getElementById('countdown').innerHTML = "Time Left: 20"
+	document.getElementById('countdown').innerHTML = "Time Left: 60"
 	document.getElementById('text').innerHTML = text;
 });
+
 
 socket.on('endmessage', function() {
 	alert('hi!')
