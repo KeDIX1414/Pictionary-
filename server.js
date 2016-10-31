@@ -114,8 +114,15 @@ io.on('connection', function(socket){
     	  //io.sockets.emit('drawclick', coordinates);
         socket.emit('drawclick', coordinates);
         socket.broadcast.to(players[socket.id].partner).emit('drawclick', coordinates);
-        stream.write(timeStamp() + " " + players[socket.id].num + " (" + coordinates.xPos + "," + coordinates.yPos + ")\n");
+        //stream.write(timeStamp() + " " + players[socket.id].num + " (" + coordinates.xPos + "," + coordinates.yPos + ")\n");
       }
+    });
+
+    socket.on("recordposition", function (currentX, currentY) {
+      if (!playing || !players[socket.id].playing) {
+        return;
+      }
+      stream.write(timeStamp() + " " + " (" + currentX + "," + currentY + ")\n")
     });
 
     // handle when a line is drawn
@@ -129,7 +136,7 @@ io.on('connection', function(socket){
         //io.sockets.emit('drawline', coordinates);
         socket.emit('drawline', coordinates);
         socket.broadcast.to(players[socket.id].partner).emit('drawline', coordinates);
-        stream.write(timeStamp() + " " + players[socket.id].num + " (" + coordinates.xFin + "," + coordinates.yFin + ")\n");
+        //stream.write(timeStamp() + " " + players[socket.id].num + " (" + coordinates.xFin + "," + coordinates.yFin + ")\n");
       }
     });
 
@@ -148,7 +155,7 @@ io.on('connection', function(socket){
       var answer = "";
       for (i = 0; i < words.length; i++) {
         if (guess === words[round][i] && players[socket.id].group === 1) {
-          answer = "correct"
+          answer = "correct";
           socket.emit('guesser_guessreceived', answer);
           socket.broadcast.to(players[socket.id].partner).emit('drawer_guessreceived', answer, guess);
           players[socket.id].playing = false;
@@ -214,7 +221,7 @@ function startGame() {
   // Set up the initial game play. Pair people together.
   console.log("Game is starting!");
   if (sockets.length % 2 != 0) {
-    console.log(sockets.length)
+    console.log(sockets.length);
     console.log("Shutting down. Can't play with an odd number of players!!!");
     process.exit();
   }
@@ -244,26 +251,27 @@ function startGame() {
   }
   word = words[0][0];
   wordTwo = wordsTwo[0][0];
-  console.log(word + "  " + wordTwo)
+  console.log(word + "  " + wordTwo);
   io.sockets.emit('setroles', players, word, wordTwo);
   for (i = 0; i < sockets.length; i++) {
     console.log(players[sockets[i]])
   }
   stream.write("\n" + timeStamp() + " Round 1 Starting\nGroup 1 word = " + words[0] + "\nGroup 2 word = " + wordsTwo[0] + "\n");
   playing = true;
-  var time = setInterval(swapPartners, 65000)
-  var countdown = 59
+  var time = setInterval(swapPartners, 65000);
+  var countdown = 59;
   var interval = setInterval(function() {
     io.sockets.emit('starttimer', countdown, words[0][0], wordsTwo[0][0], players);
     if (countdown === -1) {
       clearInterval(interval);
+      clearInterval(results);
       countdown = 59;
     }
     countdown = countdown - 1;
-  }, 1000)
+  }, 1000);
   var results = new setInterval(function() {
     io.sockets.emit('giveposition');
-  })
+  }, 250);
   function swapPartners() {
     playing = false;
     io.sockets.emit('clearcanvas');
@@ -278,7 +286,7 @@ function startGame() {
     }
     round = round + 1;
     word = words[round][0];
-    wordTwo = wordsTwo[round][0];
+    wordTwo = wordsTwo[round][0];;
     console.log(word + "  " + wordTwo)
     io.sockets.emit('setroles', players, word, wordTwo);
     if (round === 2) {
@@ -293,11 +301,15 @@ function startGame() {
     var interval = setInterval(function() {
       io.sockets.emit('starttimer', countdown, words[round][0], wordsTwo[round][0], players);
       if (countdown === -1) {
+        clearInterval(results);
         clearInterval(interval);
         countdown = 59;
       }
       countdown = countdown - 1;
     }, 1000)
+    var results = new setInterval(function() {
+    io.sockets.emit('giveposition');
+  }, 250);
     //io.sockets.emit('starttimer');
   }
 }
@@ -401,11 +413,11 @@ function startGame() {
 
 
 
-}
+}*/
 
 
 function endGame() {
   playing = false;
   stream.write(timeStamp() + " Experiment ending!");
   process.exit();
-}*''
+}
