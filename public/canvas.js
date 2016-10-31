@@ -4,8 +4,8 @@ var canvas = document.getElementById('canvas')
 var paint = false;
 var timer = 20;
 var ready = false;
-var currentX;
-var currentY;
+var currentX = 0;
+var currentY = 0;
 window.moveTo(0,0);
 //window.resizeTo(screen.width,screen.height);
 
@@ -65,21 +65,21 @@ Handling the timer display
 socket.on('starttimer', function(countdown, wordOne, wordTwo, players) {
 	document.getElementById('countdown').innerHTML = "Time Left: " + countdown;
 	if (countdown === -1) {
-		document.getElementById('guess_information').innerHTML = ""
+		document.getElementById('guess_information').innerHTML = "";
 		if (players["/#" + socket.id].group === 1) {
-			if (document.getElementById('text').innerHTML != "YOU GUESSED CORRECTLY, THE NEXT ROUND WILL BEGIN SHORTLY!"
+			if (document.getElementById('text').innerHTML != "YOU GUESSED CORRECTLY, THE NEXT ROUND WILL BEGIN SHORTLY!";
 				&& players["/#" + socket.id].type === "guesser") {
-				document.getElementById('countdown').innerHTML = "The next round will begin shortly! The correct word was " + wordOne
+				document.getElementById('countdown').innerHTML = "The next round will begin shortly! The correct word was " + wordOne;
 			} 
 			else {
-				document.getElementById('countdown').innerHTML = "The next round will begin shortly!"
+				document.getElementById('countdown').innerHTML = "The next round will begin shortly!";
 			}
 		} else {
-			if (document.getElementById('text').innerHTML != "YOU GUESSED CORRECTLY, THE NEXT ROUND WILL BEGIN SHORTLY!"
+			if (document.getElementById('text').innerHTML != "YOU GUESSED CORRECTLY, THE NEXT ROUND WILL BEGIN SHORTLY!";
 				&& players["/#" + socket.id].type === "guesser") {
-				document.getElementById('countdown').innerHTML = "The next round will begin shortly! The correct word was " + wordTwo			
+				document.getElementById('countdown').innerHTML = "The next round will begin shortly! The correct word was " + wordTwo;			
 			} else {
-				document.getElementById('countdown').innerHTML = "The next round will begin shortly!"
+				document.getElementById('countdown').innerHTML = "The next round will begin shortly!";
 			}
 		}
 		document.getElementById('text').style.color = "red";
@@ -87,7 +87,16 @@ socket.on('starttimer', function(countdown, wordOne, wordTwo, players) {
 		document.getElementById('clue').innerHTML = "";
 		socket.emit('roundover');
 	}
-})
+});
+
+/*
+Send current position to the server
+*/
+socket.on('giveposition', function() {
+	if (paint) {
+		socket.emit('recordposition', currentX, currentY);
+	}
+});
 
 
 
@@ -107,17 +116,17 @@ canvas.addEventListener('click', function(e) {
 }, false);
 
 socket.on('drawclick', function(coordinates) {
-	context = canvas.getContext("2d")
+	context = canvas.getContext("2d");
 	//context.fillStyle = coordinates.colors
-	context.fillRect(coordinates.xPos, coordinates.yPos, 2, 2)
+	context.fillRect(coordinates.xPos, coordinates.yPos, 2, 2);
 });
 
 canvas.addEventListener('mousedown', function(e) {
 	paint = true;
     x = e.pageX-canvas.offsetLeft;
 	y = e.pageY-canvas.offsetTop;
-	currentX = x
-	currentY = y
+	currentX = x;
+	currentY = y;
 	var coordinates = {xPos: x, yPos: y};
 	socket.emit('sentclick', coordinates);
 
@@ -129,20 +138,20 @@ canvas.addEventListener('mousemove', function(e) {
 		y = e.pageY-canvas.offsetTop;
 		var coordinates = {xInit: currentX, yInit: currentY, xFin: x, yFin: y};
 		socket.emit('sentline', coordinates);
-		currentX = x
-		currentY = y
+		currentX = x;
+		currentY = y;
 
 	}
 }, false);
 
 socket.on('drawline', function(coordinates) {
-	context = canvas.getContext("2d")
+	context = canvas.getContext("2d");
 	//context.strokeStyle = coordinates.colors
-	context.beginPath()
-	context.moveTo(coordinates.xInit, coordinates.yInit)
-	context.lineTo(coordinates.xFin, coordinates.yFin)
-	context.lineWidth = 2
-	context.stroke()
+	context.beginPath();
+	context.moveTo(coordinates.xInit, coordinates.yInit);
+	context.lineTo(coordinates.xFin, coordinates.yFin);
+	context.lineWidth = 2;
+	context.stroke();
 });
 
 canvas.addEventListener('mouseout', function(e) {
@@ -162,26 +171,25 @@ socket.on('setroles', function(players, word, wordTwo) {
 	var text;
 	var clue;
 	if (players["/#" + socket.id].type === "guesser") {
-		text = "You are guesser this round. When you think you know what your partner is drawing, enter your guess in the textbox."
+		text = "You are guesser this round. When you think you know what your partner is drawing, enter your guess in the textbox.";
 	} else {
 		if (players["/#" + socket.id].group === 1) {
-			text = "You are a drawer this round. We will let you know what your partner guesses."
+			text = "You are a drawer this round. We will let you know what your partner guesses.";
 			clue = "DRAW: " + word;
 			document.getElementById('clue').innerHTML = clue;
 		} else {
-			text = "You are a drawer this round. We will let you know what your partner guesses."
+			text = "You are a drawer this round. We will let you know what your partner guesses.";
 			clue = "DRAW: " + wordTwo;
 			document.getElementById('clue').innerHTML = clue;
 		}
 	}
-	document.getElementById('countdown').innerHTML = "Time Left: 60"
+	document.getElementById('countdown').innerHTML = "Time Left: 60";
 	document.getElementById('text').innerHTML = text;
 });
 
 
 socket.on('endmessage', function() {
-	alert('hi!')
-	document.getElementById('countdown').innerHTML = "The experiment is over. Thank you for your participation!"
+	document.getElementById('countdown').innerHTML = "The experiment is over. Thank you for your participation!";
 });
 
 /*
