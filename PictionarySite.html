@@ -14,20 +14,20 @@
 		<h1> Let's Play Pictionary </h1>
 		<p> INSTRUCTIONS:  
       		<ol>
-        		<li> In this game, you and your partner will take turns drawing pictures and guessing what your partner is drawing. Each round will last for one minute.
-        		<li> When you are the drawer, you will be told an image to draw at the beginning of the round. Draw this image in the canvas using your cursor. The round will end if your partner guesses correctly. If your partner guesses incorrectly, you will be alerted and told what they guessed.
-        		<li> When you are the guesser, look at what your partner draws on the canvas. When you think you know what the image is, write your guess in the textbox. You will be todl whether or not you guessed correctly or incorrectly.
+        		<li> In this game, you and your partner will take turns drawing pictures and guessing what your partner is drawing. Each round will last one minute.
+        		<li> When you are the drawer, you will be given a word to draw at the beginning of the round. Draw this image on the canvas using your cursor. The round will end when your partner guesses correctly. If your partner guesses incorrectly, you will be alerted and told what they guessed.
+        		<li> When you are the guesser, look at what your partner draws on the canvas. When you think you know what the image is, write your guess in the text box. You will be told whether your guess was correct.
       		</ol>
     	</p>
     	<p style="color:black; font-size: 200%"> WARNING: Do not refresh this page until the experiment is over! </p>
     		<button id="ready" onclick="readyToPlay()"> Ready to Play!</button>
-			<p id="countdown"> Time Left: 20</p>
+			<p id="countdown"> Time Left: 60</p>
 			<p id="guess_information" > </p>
 			<p id="text" >Click the "Ready to Play!" button once you have read the directions. The game will begin shortly. Do not refresh the page.</p>
 			<p id="clue" style= "color:black;"> </p>
 			<canvas id="canvas" width=300 height=300 > </canvas>
 			<script src="canvas.js"></script>
-			<textarea id="textbox"> Input your guess here. </textarea>
+			<textarea id="textbox" rows="1"> Input your guess here. </textarea>
 			<button onclick="guessSubmitted()">Submit Guess!</button>		
 	</body>
 </html>
