@@ -10,17 +10,17 @@ window.moveTo(0,0);
 //window.resizeTo(screen.width,screen.height);
 
 
-/*
-Handle when user tries to refresh page
-*/
+/**
+ * Handle when user tries to refresh page
+ */
 
 window.onbeforeunload = function() {
   return "If you refresh or leave this page, you will not be able to reenter this experiment, and you will forfeit payment. Are you sure?";
 };
 
-/*
-Handles alerting the server once the players are ready.
-*/
+/**
+ * Handles alerting the server once the players are ready.
+ */
 function readyToPlay() {
 	if (ready) {
 		return;
@@ -30,10 +30,9 @@ function readyToPlay() {
 	alert("Awesome! We will begin when everyone else is ready.");
 }
 
-/*
-Handles sending guesses to the server and alerting players if their guess is correct
-*/
-
+/**
+ * Handles sending guesses to the server and alerting players if their guess is correct
+ */
 function guessSubmitted() {
 	var guess = document.getElementById('textbox').value;
 	socket.emit('sentguess', guess.replace(/\s/g, ""));
@@ -59,15 +58,15 @@ socket.on('drawer_guessreceived', function(answer, guess) {
 	}
 });
 
-/*
-Handling the timer display
-*/
+/**
+ * Handling the timer display
+ */
 socket.on('starttimer', function(countdown, wordOne, wordTwo, players) {
 	document.getElementById('countdown').innerHTML = "Time Left: " + countdown;
 	if (countdown === -1) {
 		document.getElementById('guess_information').innerHTML = "";
 		if (players["/#" + socket.id].group === 1) {
-			if (document.getElementById('text').innerHTML != "YOU GUESSED CORRECTLY, THE NEXT ROUND WILL BEGIN SHORTLY!";
+			if (document.getElementById('text').innerHTML != "YOU GUESSED CORRECTLY, THE NEXT ROUND WILL BEGIN SHORTLY!"
 				&& players["/#" + socket.id].type === "guesser") {
 				document.getElementById('countdown').innerHTML = "The next round will begin shortly! The correct word was " + wordOne;
 			} 
@@ -75,7 +74,7 @@ socket.on('starttimer', function(countdown, wordOne, wordTwo, players) {
 				document.getElementById('countdown').innerHTML = "The next round will begin shortly!";
 			}
 		} else {
-			if (document.getElementById('text').innerHTML != "YOU GUESSED CORRECTLY, THE NEXT ROUND WILL BEGIN SHORTLY!";
+			if (document.getElementById('text').innerHTML != "YOU GUESSED CORRECTLY, THE NEXT ROUND WILL BEGIN SHORTLY!"
 				&& players["/#" + socket.id].type === "guesser") {
 				document.getElementById('countdown').innerHTML = "The next round will begin shortly! The correct word was " + wordTwo;			
 			} else {
@@ -89,13 +88,50 @@ socket.on('starttimer', function(countdown, wordOne, wordTwo, players) {
 	}
 });
 
-/*
-Send current position to the server
+/**
+ * Send current position of the mouse on the canvas to the server
 */
 socket.on('giveposition', function() {
 	if (paint) {
 		socket.emit('recordposition', currentX, currentY);
+	} else {
+		socket.emit('recordposition', -1, -1);
 	}
+});
+
+/**
+ * Give players directions at the start of each round.
+ */
+
+socket.on('setroles', function(players, word, wordTwo) {
+	var text;
+	var clue;
+	if (players["/#" + socket.id].type === "guesser") {
+		text = "You are guesser this round. When you think you know what your partner is drawing, enter your guess in the textbox.";
+	} else {
+		if (players["/#" + socket.id].group === 1) {
+			text = "You are a drawer this round. We will let you know what your partner guesses.";
+			clue = "DRAW: " + word;
+			document.getElementById('clue').innerHTML = clue;
+		} else {
+			text = "You are a drawer this round. We will let you know what your partner guesses.";
+			clue = "DRAW: " + wordTwo;
+			document.getElementById('clue').innerHTML = clue;
+		}
+	}
+	document.getElementById('countdown').innerHTML = "Time Left: 60";
+	document.getElementById('text').innerHTML = text;
+});
+
+
+/**
+ * Force socket to disconnect
+ */
+
+socket.on('endgame', function(){
+	document.getElementById('countdown').innerHTML = "test";
+	socket.emit('readytoend');
+    socket.disconnect();
 });
 
 
@@ -103,7 +139,8 @@ socket.on('giveposition', function() {
 /*
 The following functions and event listeners are used to find the coordinates where a player is drawing, and transmit those 
 coordinates to the server. The server is responsible for sending the coordinates to the necessary players so the image can
-be drawn on their screens in real time. If a player is not designated as a "drawer", the server will not send the coordinates.*/
+be drawn on their screens in real time. If a player is not designated as a "drawer", the server will not send the coordinates.
+*/
 
 canvas.addEventListener('click', function(e) {
     x = e.pageX-canvas.offsetLeft;
@@ -117,7 +154,6 @@ canvas.addEventListener('click', function(e) {
 
 socket.on('drawclick', function(coordinates) {
 	context = canvas.getContext("2d");
-	//context.fillStyle = coordinates.colors
 	context.fillRect(coordinates.xPos, coordinates.yPos, 2, 2);
 });
 
@@ -146,7 +182,6 @@ canvas.addEventListener('mousemove', function(e) {
 
 socket.on('drawline', function(coordinates) {
 	context = canvas.getContext("2d");
-	//context.strokeStyle = coordinates.colors
 	context.beginPath();
 	context.moveTo(coordinates.xInit, coordinates.yInit);
 	context.lineTo(coordinates.xFin, coordinates.yFin);
@@ -167,38 +202,6 @@ socket.on('clearcanvas', function() {
 	context.clearRect(0, 0, canvas.width, canvas.height);
 });
 
-socket.on('setroles', function(players, word, wordTwo) {
-	var text;
-	var clue;
-	if (players["/#" + socket.id].type === "guesser") {
-		text = "You are guesser this round. When you think you know what your partner is drawing, enter your guess in the textbox.";
-	} else {
-		if (players["/#" + socket.id].group === 1) {
-			text = "You are a drawer this round. We will let you know what your partner guesses.";
-			clue = "DRAW: " + word;
-			document.getElementById('clue').innerHTML = clue;
-		} else {
-			text = "You are a drawer this round. We will let you know what your partner guesses.";
-			clue = "DRAW: " + wordTwo;
-			document.getElementById('clue').innerHTML = clue;
-		}
-	}
-	document.getElementById('countdown').innerHTML = "Time Left: 60";
-	document.getElementById('text').innerHTML = text;
-});
-
-
-socket.on('endmessage', function() {
-	document.getElementById('countdown').innerHTML = "The experiment is over. Thank you for your participation!";
-});
-
-/*
-Force socket to disconnect
-*/
-
-socket.on('forceDisconnect', function(){
-    socket.disconnect();
-});
 
 
 
