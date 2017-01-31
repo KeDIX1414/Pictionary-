@@ -12,16 +12,20 @@ var sockets = new Array();
 
 var numPlayers = 1;
 var numReadyPlayers = 0;
+var gameStarted = false;
 var playing = false;
+var partOne = false;
 var round = 0;
 var playersEnded = 0;
 
 var words = new Array();
 var wordsTwo = new Array(); 
 var results = new String();
-var stream = fs.createWriteStream("my_file.txt");
+var stream = fs.createWriteStream("results.txt");
 stream.write(timeStamp() + " Experiment Starting!\n")
 var buf = new Buffer(1024);
+
+io.sockets.emit('endgame');
 
 fs.open('arguments.txt', 'r+', function(err, fd) {
    if (err) {
@@ -77,10 +81,14 @@ io.on('connection', function(socket){
 	
  	// handle when player disconnects
   	socket.on('disconnect', function() {
+      /*if (!gameStarted) {
+        return;
+      }*/
     	console.log('user disconnected');
       playersEnded = 2;
       stream.write(timeStamp() + " " + players[socket.id].num + " disconnected\n");
-      endGame();
+      io.sockets.emit('endgame');
+      setTimeout(endGame, 5000)
     });
 
     socket.on('readytoend', function() {
@@ -98,7 +106,7 @@ io.on('connection', function(socket){
         numReadyPlayers++;
       }
       if (numReadyPlayers === 2) {
-
+          gameStarted = true;
           setTimeout(startGame, 5000)
         }
 
@@ -116,10 +124,10 @@ io.on('connection', function(socket){
     });
 
     socket.on("recordposition", function (currentX, currentY) {
-      if (!playing || !players[socket.id].playing) {
+      if (!playing || !players[socket.id].playing || players[socket.id].type != 'drawer') {
         return;
       }
-      stream.write(timeStamp() + "  " + players[socket.id].num + " " + " (" + currentX + "," + currentY + ")\n")
+      stream.write(players[socket.id].num + " " + " (" + currentX + "," + currentY + ")\n")
     });
 
     // handle when a line is drawn
@@ -180,7 +188,7 @@ http.listen(3000, function(){
 process.on( 'SIGINT', function() {
 	console.log( "\nGracefully shutting down from SIGINT (Ctrl-C)" );
     id = 1;
-    process.exit( );
+    process.exit();
 });
 
 function timeStamp() {
@@ -199,8 +207,9 @@ function timeStamp() {
  * Randomize array element order in-place.
  * Using Durstenfeld shuffle algorithm.
  */
-function shuffleArray(array) {
-  for (var i = array.length - 1; i > 0; i--) {
+function shuffleArray(array, start, end) {
+  //for (var i = array.length - 1; i > 0; i--) {
+  for (var i = end, i > start; i--) {
     var j = Math.floor(Math.random() * (i + 1));
     var temp = array[i];
     array[i] = array[j];
@@ -217,7 +226,7 @@ function startGame() {
     console.log("Shutting down. Can't play with an odd number of players!!!");
     process.exit();
   }
-  sockets = shuffleArray(sockets);
+  sockets = shuffleArray(sockets, 0, sockets.length - 1);
   for (i = 0; i < sockets.length; i++) {
     var groupNum = 1;
     if (i >= sockets.length / 2 && sockets.length > 2) {
@@ -261,7 +270,7 @@ function startGame() {
   }, 1000);
   var results = new setInterval(function() {
     io.sockets.emit('giveposition');
-  }, 10);
+  }, 150);
   function swapPartners() {
     playing = false;
     io.sockets.emit('clearcanvas');
@@ -279,11 +288,19 @@ function startGame() {
     wordTwo = wordsTwo[round][0];;
     console.log(word + "  " + wordTwo)
     io.sockets.emit('setroles', players, word, wordTwo);
+    // CHANGE THIS CODE AFTER DONE TESTING
     if (round === 1) {
       clearInterval(time);
-      io.sockets.emit('endgame');
-      return;
+      clearInterval(results);
+      io.sockets.emit('parttwo')
     }
+    if (round === 4) {
+      clearInterval(time);
+      io.sockets.emit('endgame');
+      //return;
+      setTimeout(endGame, 5000)
+    }
+    // CHANGE THIS CODE AFTER DONE TESTING
     var newRound = round + 1;
     stream.write("\n" + timeStamp() + " Round " + newRound + " Starting\nGroup 1 word = " + words[round] + "\nGroup 2 word = " + wordsTwo[round] + "\n");
     playing = true;
@@ -299,175 +316,64 @@ function startGame() {
     }, 1000)
     var results = new setInterval(function() {
       io.sockets.emit('giveposition');
-  }, 10);
+  }, 150);
     //io.sockets.emit('starttimer');
   }
 }
 
 function startRoundTwo() {
-  var indexFirstPairOne;
-  var indexFirstPairTwo;
-  var indexSecondPairOne;
-  var indexSecondPairTwo;
-  var indexThirdPairOne;
-  var indexThirdPairTwo;
-  var indexFourthPairOne;
-  var indexFourthPairTwo;
-
-  // Figure Out New Partners
-  if (Math.floor(Math.random() * 2) === 0) {
-    indexFirstPairOne = 0;
-    indexThirdPairOne = 1;
-  } else {
-    indexFirstPairOne = 1;
-    indexThirdPairOne = 0;
+  var onePartner = false;
+  var twoPartner = false;
+  shuffleArray(sockets, 0, 3);
+  shuffleArray(sockets, 4, 7);
+  if (players[sockets[0]].partner = sockets[1]) {
+    oneParter = true;
   }
-
-  if (Math.floor(Math.random() * 2) === 0) {
-    indexFirstPairTwo = 2;
-    indexFourthPairOne = 3;
-  } else {
-    indexFirstPairTwo = 3;
-    indexFourthPairOne = 2;
+  if (players[sockets[4]].partner = sockets[5]) {
+    twoParter = true;
   }
-
-  if (Math.floor(Math.random() * 2) === 0) {
-    indexSecondPairOne = 4;
-    indexThirdPairTwo = 5;
-  } else {
-    indexSecondPairOne = 5;
-    indexThirdPairTwo = 4;
+  if (!oneParter && !twoParter) {
+    players[sockets[0]].partner = sockets[1];
+    players[sockets[1]].partner = sockets[0];
+    players[sockets[2]].partner = sockets[6];
+    players[sockets[3]].partner = sockets[7];
+    players[sockets[4]].partner = sockets[5];
+    players[sockets[5]].partner = sockets[4];
+    players[sockets[6]].partner = sockets[2];
+    players[sockets[7]].partner = sockets[3];
   }
-
-  if (Math.floor(Math.random() * 2) === 0) {
-    indexSecondPairTwo = 6;
-    indexFourthPairTwo = 7;
-  } else {
-    indexSecondPairTwo = 7;
-    indexFourthPairTwo = 6;
+  if (!oneParter && twoParter) {
+    players[sockets[0]].partner = sockets[1];
+    players[sockets[1]].partner = sockets[0];
+    players[sockets[2]].partner = sockets[5];
+    players[sockets[3]].partner = sockets[7];
+    players[sockets[4]].partner = sockets[6];
+    players[sockets[5]].partner = sockets[2];
+    players[sockets[6]].partner = sockets[4];
+    players[sockets[7]].partner = sockets[3];
   }
-
-  // Create new partner pairs
-  players[indexFirstPairOne].partner = indexFirstPairTwo;
-  players[indexFirstPairTwo].partner = indexFirstPairOne;
-  players[indexSecondPairOne].partner = indexSecondPairTwo;
-  players[indexSecondPairTwo].partner = indexSecondPairOne;
-
-  if (Math.floor(Math.random() * 2) === 0) {
-    players[indexThirdPairOne].partner = players[indexThirdPairTwo].partner;
-    players[indexThirdPairTwo].partner = players[indexThirdPairOne].partner;
-    players[indexFourthPairOne].partner = players[indexFourthPairTwo].partner;
-    players[indexFourthPairTwo].partner = players[indexFourthPairOne].partner;
-  } else {
-    players[indexThirdPairOne].partner = players[indexFourthPairTwo].partner;
-    players[indexFourthPairTwo].partner = players[indexThirdPairOne].partner;
-    players[indexFourthPairOne].partner = players[indexThirdPairTwo].partner;
-    players[indexThirdPairTwo].partner = players[indexFourthPairOne].partner;
+  if (oneParter && !twoParter) {
+    players[sockets[0]].partner = sockets[2];
+    players[sockets[1]].partner = sockets[6];
+    players[sockets[2]].partner = sockets[0];
+    players[sockets[3]].partner = sockets[7];
+    players[sockets[4]].partner = sockets[5];
+    players[sockets[5]].partner = sockets[4];
+    players[sockets[6]].partner = sockets[1];
+    players[sockets[7]].partner = sockets[3];
+  }
+  if (!oneParter && !twoParter) {
+    players[sockets[0]].partner = sockets[2];
+    players[sockets[1]].partner = sockets[5];
+    players[sockets[2]].partner = sockets[0];
+    players[sockets[3]].partner = sockets[7];
+    players[sockets[4]].partner = sockets[6];
+    players[sockets[5]].partner = sockets[1];
+    players[sockets[6]].partner = sockets[4];
+    players[sockets[7]].partner = sockets[3];
   }
 }
 
-
-
-/*function startRoundTwo() {
-  var firstPair = new Array();
-  var secondPair = new Array();
-  var thirdPair = new Array();
-  var fourthPair = new Array();
-  var newFirstPair = new Array();
-  var newSecondPair = new Array();
-  var one;
-  var two;
-  var three;
-  var four;
-  var countGroupOne = 0;
-  var countGroupTwo = 0;
-  console.log("starting loop");
-  for (i = 0; i < sockets.length; i = i + 2) {
-    console.log(sockets[i]);
-      if (countGroupOne === 0 && players[sockets[i]].group === 1) {
-        console.log("here")
-        firstPair[0] = players[sockets[i]].id;
-        firstPair[1] = players[players[sockets[i]].partner].id;
-        countGroupOne++;
-      }
-      if (countGroupOne === 1 && players[sockets[i]].group === 1) {
-        secondPair[0] = players[sockets[i]].id;
-        secondPair[1] = players[players[sockets[i]].partner].id;
-        countGroupOne++
-      }
-      if (countGroupTwo === 0 && players[sockets[i]].group === 2) {
-        thirdPair[0] = players[sockets[i]].id;
-        thirdPair[1] = players[players[sockets[i]].partner].id;
-        countGroupTwo++;
-      }
-      if (countGroupTwo === 1 && players[sockets[i]].group === 2) {
-        fourthPair[0] = players[sockets[i]].id;
-        fourthPair[1] = players[players[sockets[i]].partner].id;
-        countGroupTwo++;
-      }
-  }
-  console.log(firstPair[0]);
-  console.log(firstPair[1]);
-  console.log(secondPair[0]);
-  console.log(secondPair[1]);
-  console.log(thirdPair[0]);
-  console.log(thirdPair[1]);
-  console.log(fourthPair[0]);
-  console.log(fourthPair[1]);
-  if (Math.floor(Math.random() * 2) === 0) {
-    newFirstPair[0] = firstPair[0];
-    one = firstPair[1];
-  } else {
-    newFirstPair[0] = firstPair[1];
-    one = firstPair[0];
-  }
-
-  if (Math.floor(Math.random() * 2) === 0) {
-    newFirstPair[1] = secondPair[0];
-    two = secondPair[1];
-  } else {
-    newFirstPair[1] = secondPair[1];
-    two = secondPair[0];
-  }
-
-  if (Math.floor(Math.random() * 2) === 0) {
-    newSecondPair[0] = thirdPair[0];
-    three = thirdPair[1];
-  } else {
-    newSecondPair[0] = thirdPair[1];
-    three = thirdPair[0];
-  }
-
-  if (Math.floor(Math.random() * 2) === 0) {
-    newSecondPair[1] = fourthPair[0];
-    four = fourthPair[1];
-  } else {
-    newSecondPair[1] = fourthPair[1];
-    four = fourthPair[1];
-
-  }
-  players[one].partner = two;
-  players[two].partner = one;
-  players[three].partner = four;
-  players[four].partner = three;
-  if (Math.floor(Math.random() * 2) === 0) {
-    players[newFirstPair[0]].partner = newSecondPair[0];
-    players[newFirstPair[1]].partner = newSecondPair[1];
-    players[newSecondPair[0]].partner = newFirstPair[0];
-    players[newSecondPair[1]].partner = newFirstPair[1];
-  } else {
-    players[newFirstPair[0]].partner = newSecondPair[1];
-    players[newFirstPair[1]].partner = newSecondPair[0];
-    players[newSecondPair[1]].partner = newFirstPair[0];
-    players[newSecondPair[0]].partner = newFirstPair[1];
-  }
-  //console.log(players);
-
-
-
-
-
-}*/
 
 
 function endGame() {

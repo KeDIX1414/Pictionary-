@@ -2,7 +2,7 @@
 	<head>
 		<title> Cultural Evolution of Language Lab's Pictionary Game </title>
 		<style>
-		body {font-family: arial ;background-color: rgb(211, 211, 211); color: Red;}
+		body {font-family: arial ;background-color: rgb(211, 211, 211); color: Black; position:relative;}
 		h1 {background-color: Blue; color: rgb(200, 255, 255);}
 		#wrapper {position:relative; width:400px; height:400px; margin:0 auto; padding-top:75px;}
 		#canvas {background-color: White; cursor:crosshair;}
@@ -11,14 +11,19 @@
 	</head>
 	<script src="/socket.io/socket.io.js"></script>
 	<body>
-		<h1> Let's Play Pictionary </h1>
-		<p> INSTRUCTIONS:  
-      		<ol>
-        		<li> In this game, you and your partner will take turns drawing pictures and guessing what your partner is drawing. Each round will last one minute.
-        		<li> When you are the drawer, you will be given a word to draw at the beginning of the round. Draw this image on the canvas using your cursor. The round will end when your partner guesses correctly. If your partner guesses incorrectly, you will be alerted and told what they guessed.
-        		<li> When you are the guesser, look at what your partner draws on the canvas. When you think you know what the image is, write your guess in the text box. You will be told whether your guess was correct.
+		<h1> Word Game </h1>
+		<p style = "text-align:center;"><strong> Instructions: Read This First  
+      		<ol style = "width:1200px; padding-left:100px;">
+        		<li> In this game, you and your partner will take turns drawing pictures and guessing what the other is drawing. Each round lasts one minute.
+        		<li> When you’re the DRAWER, you’ll be given a word to draw on the screen. 
+You will see your partner's guesses as they make them. You can keep drawing until they get it right or the minute is up.
+ 
+        		<li> When you’re the GUESSER, watch your partner's drawing appear.  
+Guess what it is by writing your guess in the text box and pressing Enter. (Don’t write extra words! For example, write “popsicle”, not “I think it’s a popsicle”.) 
+				<li> The game will tell you if you get it right. Keep guessing until you do, or the minute is up.
+				<li> After the minute is up, you’ll start a new round. In the new round you may have the same partner or a different one. We’ll tell you if you’re switching partners, and whether you’re the DRAWER or the GUESSER.
       		</ol>
-    	</p>
+    	</strong></p>
     	<p style="color:black; font-size: 200%"> WARNING: Do not refresh this page until the experiment is over! </p>
     		<button id="ready" onclick="readyToPlay()"> Ready to Play!</button>
 			<p id="countdown"> Time Left: 60</p>
@@ -26,8 +31,8 @@
 			<p id="text" >Click the "Ready to Play!" button once you have read the directions. The game will begin shortly. Do not refresh the page.</p>
 			<p id="clue" style= "color:black;"> </p>
 			<canvas id="canvas" width=300 height=300 > </canvas>
-			<script src="/public/canvas.js"></script>
 			<textarea id="textbox" rows="1"> </textarea>
+			<script src="/public/canvas.js"></script>
 			<button onclick="guessSubmitted()">Submit Guess!</button>		
 	</body>
 </html>
