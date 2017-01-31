@@ -1,6 +1,7 @@
 //style="margin-bottom:50px;"
 var socket = io();
-var canvas = document.getElementById('canvas')
+var canvas = document.getElementById('canvas');
+var answer = document.getElementById('textbox');
 var paint = false;
 var timer = 20;
 var ready = false;
@@ -13,7 +14,7 @@ window.moveTo(0,0);
 /**
  * Handle when user tries to refresh page
  */
-
+console.log(answer)
 window.onbeforeunload = function() {
   return "If you refresh or leave this page, you will not be able to reenter this experiment, and you will forfeit payment. Are you sure?";
 };
@@ -30,6 +31,8 @@ function readyToPlay() {
 	alert("Awesome! We will begin when everyone else is ready.");
 }
 
+
+
 /**
  * Handles sending guesses to the server and alerting players if their guess is correct
  */
@@ -37,6 +40,17 @@ function guessSubmitted() {
 	var guess = document.getElementById('textbox').value;
 	socket.emit('sentguess', guess.replace(/\s/g, ""));
 }
+
+answer.addEventListener('keypress', function(e) {
+	console.log("at enter listener")
+	if (e.keyCode == 13) {
+		e.preventDefault();
+		console.log("here");
+    	var guess = document.getElementById('textbox').value;
+		socket.emit('sentguess', guess.replace(/\s/g, ""));
+
+	}
+}, false);
 
 socket.on('guesser_guessreceived', function(answer) {
 	if (answer === 'correct') {
@@ -106,10 +120,11 @@ socket.on('giveposition', function() {
 socket.on('setroles', function(players, word, wordTwo) {
 	var text;
 	var clue;
-	if (players["/#" + socket.id].type === "guesser") {
+	console.log(players)
+	if (players[socket.id].type === "guesser") {
 		text = "You are guesser this round. When you think you know what your partner is drawing, enter your guess in the textbox.";
 	} else {
-		if (players["/#" + socket.id].group === 1) {
+		if (players[socket.id].group === 1) {
 			text = "You are a drawer this round. We will let you know what your partner guesses.";
 			clue = "DRAW: " + word;
 			document.getElementById('clue').innerHTML = clue;
@@ -129,7 +144,9 @@ socket.on('setroles', function(players, word, wordTwo) {
  */
 
 socket.on('endgame', function(){
-	document.getElementById('countdown').innerHTML = "test";
+	document.getElementById('countdown').innerHTML = "This experiment has ended. Thank you for your participation!";
+	document.getElementById('text').innerHTML = "";
+	document.getElementById('clue').innerHTML = "";
 	socket.emit('readytoend');
     socket.disconnect();
 });
