@@ -42,10 +42,8 @@ function guessSubmitted() {
 }
 
 answer.addEventListener('keypress', function(e) {
-	console.log("at enter listener")
 	if (e.keyCode == 13) {
 		e.preventDefault();
-		console.log("here");
     	var guess = document.getElementById('textbox').value;
 		socket.emit('sentguess', guess.replace(/\s/g, ""));
 
@@ -79,9 +77,9 @@ socket.on('starttimer', function(countdown, wordOne, wordTwo, players) {
 	document.getElementById('countdown').innerHTML = "Time Left: " + countdown;
 	if (countdown === -1) {
 		document.getElementById('guess_information').innerHTML = "";
-		if (players["/#" + socket.id].group === 1) {
+		if (players[socket.id].group === 1) {
 			if (document.getElementById('text').innerHTML != "YOU GUESSED CORRECTLY, THE NEXT ROUND WILL BEGIN SHORTLY!"
-				&& players["/#" + socket.id].type === "guesser") {
+				&& players[socket.id].type === "guesser") {
 				document.getElementById('countdown').innerHTML = "The next round will begin shortly! The correct word was " + wordOne;
 			} 
 			else {
@@ -89,13 +87,12 @@ socket.on('starttimer', function(countdown, wordOne, wordTwo, players) {
 			}
 		} else {
 			if (document.getElementById('text').innerHTML != "YOU GUESSED CORRECTLY, THE NEXT ROUND WILL BEGIN SHORTLY!"
-				&& players["/#" + socket.id].type === "guesser") {
+				&& players[socket.id].type === "guesser") {
 				document.getElementById('countdown').innerHTML = "The next round will begin shortly! The correct word was " + wordTwo;			
 			} else {
 				document.getElementById('countdown').innerHTML = "The next round will begin shortly!";
 			}
 		}
-		document.getElementById('text').style.color = "red";
 		document.getElementById('text').innerHTML = "";
 		document.getElementById('clue').innerHTML = "";
 		socket.emit('roundover');
@@ -137,6 +134,15 @@ socket.on('setroles', function(players, word, wordTwo) {
 	document.getElementById('countdown').innerHTML = "Time Left: 60";
 	document.getElementById('text').innerHTML = text;
 });
+
+/**
+ * Display message at the end of part 1
+ */
+ socket.on('parttwo', function() {
+ 	document.getElementById('countdown').innerHTML = "Part One has ended. In 30 seconds, Part Two will begin. You will have a new partner.";
+	document.getElementById('text').innerHTML = "";
+	document.getElementById('clue').innerHTML = "";
+ })
 
 
 /**
