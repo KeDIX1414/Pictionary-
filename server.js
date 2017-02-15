@@ -14,7 +14,7 @@ var numPlayers = 1;
 var numReadyPlayers = 0;
 var gameStarted = false;
 var playing = false;
-var partOne = false;
+var partOne = true;
 var round = 0;
 var playersEnded = 0;
 
@@ -23,7 +23,7 @@ var wordsTwo = new Array();
 var results = new String();
 var stream = fs.createWriteStream("results.txt");
 stream.write(timeStamp() + " Experiment Starting!\n")
-var buf = new Buffer(1024);
+var buf = new Buffer(2000);
 
 io.sockets.emit('endgame');
 
@@ -43,12 +43,12 @@ fs.open('arguments.txt', 'r+', function(err, fd) {
         allWords = str.split("\n");
         console.log(allWords.length)
       }
+      
       for (i = 0; i < allWords.length; i++) {
         var options = allWords[i].split("/");
         if (i < 38) {
           words.push(options);
         } else {
-          console.log("here")
           wordsTwo.push(options);
         }
       }
@@ -57,9 +57,13 @@ fs.open('arguments.txt', 'r+', function(err, fd) {
             console.log(err);
          } 
          console.log("File closed successfully.");
+         //console.log(words);
+         //console.log(wordsTwo);
+         console.log(wordsTwo[0] + "  " + wordsTwo[1] + "  " + wordsTwo[0][0])
       });
    });
 });
+
 
 
 app.get('/', function(req, res){
@@ -104,8 +108,9 @@ io.on('connection', function(socket){
       } else {
         players[socket.id].ready = true;
         numReadyPlayers++;
+        console.log("This many people are ready to play:   " + numReadyPlayers)
       }
-      if (numReadyPlayers === 2) {
+      if (numReadyPlayers === 8) {
           gameStarted = true;
           setTimeout(startGame, 5000)
         }
@@ -149,7 +154,8 @@ io.on('connection', function(socket){
     // handle when a player guesses
     socket.on('sentguess', function(guess) {
       guess = guess.toLowerCase();
-      if (players[socket.id].type === "drawer" || !playing || !players[socket.id].playing) {
+      console.log("a" + guess + "a")
+      if (players[socket.id].type === "drawer" || !playing || !players[socket.id].playing || guess == "") {
         return;
       }
       stream.write(timeStamp() + "  " + players[socket.id].num + " guesses " + guess + "\n");
@@ -188,7 +194,9 @@ http.listen(3000, function(){
 process.on( 'SIGINT', function() {
 	console.log( "\nGracefully shutting down from SIGINT (Ctrl-C)" );
     id = 1;
-    process.exit();
+    io.sockets.emit('endgame');
+    setTimeout(process.exit, 5000)
+    //process.exit();
 });
 
 function timeStamp() {
@@ -207,9 +215,8 @@ function timeStamp() {
  * Randomize array element order in-place.
  * Using Durstenfeld shuffle algorithm.
  */
-function shuffleArray(array, start, end) {
-  //for (var i = array.length - 1; i > 0; i--) {
-  for (var i = end, i > start; i--) {
+function shuffleArray(array) {
+  for (var i = array.length - 1; i > 0; i--) {
     var j = Math.floor(Math.random() * (i + 1));
     var temp = array[i];
     array[i] = array[j];
@@ -248,25 +255,35 @@ function startGame() {
 
     }
   }
-  word = words[0][0];
-  wordTwo = wordsTwo[0][0];
+  var word;
+  var wordTwo;
+  if (partOne) {
+    word = words[0][0];
+    wordTwo = wordsTwo[0][0];
+  } else {
+    console.log("We are on round " + round);
+    word = words[round][0];
+    wordTwo = wordsTwo[round][0];
+  }
   console.log(word + "  " + wordTwo);
   io.sockets.emit('setroles', players, word, wordTwo);
   for (i = 0; i < sockets.length; i++) {
-    console.log(players[sockets[i]])
+    //console.log(players[sockets[i]])
   }
-  stream.write("\n" + timeStamp() + " Round 1 Starting\nGroup 1 word = " + words[0] + "\nGroup 2 word = " + wordsTwo[0] + "\n");
+  if (partOne) {
+    stream.write("\n" + timeStamp() + " Round 1 Starting\nGroup 1 word = " + words[0] + "\nGroup 2 word = " + wordsTwo[0] + "\n");
+  }
   playing = true;
   var time = setInterval(swapPartners, 65000);
   var countdown = 59;
   var interval = setInterval(function() {
     io.sockets.emit('starttimer', countdown, words[0][0], wordsTwo[0][0], players);
-    if (countdown === -1) {
-      clearInterval(interval);
-      clearInterval(results);
-      countdown = 59;
-    }
-    countdown = countdown - 1;
+      if (countdown === -1) {
+        clearInterval(interval);
+        clearInterval(results);
+        countdown = 59;
+      }
+      countdown = countdown - 1;
   }, 1000);
   var results = new setInterval(function() {
     io.sockets.emit('giveposition');
@@ -285,16 +302,11 @@ function startGame() {
     }
     round = round + 1;
     word = words[round][0];
-    wordTwo = wordsTwo[round][0];;
+    wordTwo = wordsTwo[round][0];
     console.log(word + "  " + wordTwo)
     io.sockets.emit('setroles', players, word, wordTwo);
     // CHANGE THIS CODE AFTER DONE TESTING
-    if (round === 1) {
-      clearInterval(time);
-      clearInterval(results);
-      io.sockets.emit('parttwo')
-    }
-    if (round === 4) {
+    if (round === 37) {
       clearInterval(time);
       io.sockets.emit('endgame');
       //return;
@@ -316,62 +328,117 @@ function startGame() {
     }, 1000)
     var results = new setInterval(function() {
       io.sockets.emit('giveposition');
-  }, 150);
+    }, 150);
     //io.sockets.emit('starttimer');
+
+    // CHANGED CODE!!!!!!
+    if (round === 20) {
+      partOne = false;
+      io.sockets.emit('parttwo');
+      clearInterval(time);
+      clearInterval(results);
+      clearInterval(interval);
+      setTimeout(changePartners, 35000);
+      return;
+    }
   }
 }
 
-function startRoundTwo() {
+function changePartners() {
   var onePartner = false;
   var twoPartner = false;
-  shuffleArray(sockets, 0, 3);
-  shuffleArray(sockets, 4, 7);
-  if (players[sockets[0]].partner = sockets[1]) {
-    oneParter = true;
+  partOne = shuffleArray(sockets.slice(0, 4))
+  partTwo =shuffleArray(sockets.slice(4, 8))
+  sockets = partOne.concat(partTwo)
+  console.log(sockets)
+  console.log (players[sockets[0]].partner +  "  " + sockets[1])
+  console.log (players[sockets[0]].partner === sockets[1])
+  if (players[sockets[0]].partner === sockets[1]) {
+    console.log("here")
+    onePartner = true;
   }
-  if (players[sockets[4]].partner = sockets[5]) {
-    twoParter = true;
+  if (players[sockets[4]].partner === sockets[5]) {
+    twoPartner = true;
   }
-  if (!oneParter && !twoParter) {
+  if (!onePartner && !twoPartner) {
+    console.log(1)
     players[sockets[0]].partner = sockets[1];
+    players[sockets[0]].type = "drawer"
     players[sockets[1]].partner = sockets[0];
+    players[sockets[1]].type = "guesser"
     players[sockets[2]].partner = sockets[6];
+    players[sockets[2]].type = "guesser"
     players[sockets[3]].partner = sockets[7];
+    players[sockets[3]].type = "drawer"
     players[sockets[4]].partner = sockets[5];
+    players[sockets[4]].type = "drawer"
     players[sockets[5]].partner = sockets[4];
+    players[sockets[5]].type = "guesser"
     players[sockets[6]].partner = sockets[2];
+    players[sockets[6]].type = "drawer"
     players[sockets[7]].partner = sockets[3];
+    players[sockets[7]].type = "guesser"
   }
-  if (!oneParter && twoParter) {
+  if (!onePartner && twoPartner) {
+    console.log(2)
     players[sockets[0]].partner = sockets[1];
+    players[sockets[0]].type = "drawer"
     players[sockets[1]].partner = sockets[0];
+    players[sockets[1]].type = "guesser"
     players[sockets[2]].partner = sockets[5];
+    players[sockets[2]].type = "guesser"
     players[sockets[3]].partner = sockets[7];
+    players[sockets[3]].type = "drawer"
     players[sockets[4]].partner = sockets[6];
+    players[sockets[4]].type = "drawer"
     players[sockets[5]].partner = sockets[2];
+    players[sockets[5]].type = "drawer"
     players[sockets[6]].partner = sockets[4];
+    players[sockets[6]].type = "guesser"
     players[sockets[7]].partner = sockets[3];
+    players[sockets[7]].type = "guesser"
   }
-  if (oneParter && !twoParter) {
+  if (onePartner && !twoPartner) {
+    console.log(3)
     players[sockets[0]].partner = sockets[2];
+    players[sockets[0]].type = "drawer"
     players[sockets[1]].partner = sockets[6];
+    players[sockets[1]].type = "guesser"
     players[sockets[2]].partner = sockets[0];
+    players[sockets[2]].type = "guesser"
     players[sockets[3]].partner = sockets[7];
+    players[sockets[3]].type = "drawer"
     players[sockets[4]].partner = sockets[5];
+    players[sockets[4]].type = "drawer"
     players[sockets[5]].partner = sockets[4];
+    players[sockets[5]].type = "guesser"
     players[sockets[6]].partner = sockets[1];
+    players[sockets[6]].type = "drawer"
     players[sockets[7]].partner = sockets[3];
+    players[sockets[7]].type = "guesser"
   }
-  if (!oneParter && !twoParter) {
+  if (onePartner && twoPartner) {
+    console.log(4)
     players[sockets[0]].partner = sockets[2];
+    players[sockets[0]].type = "drawer"
     players[sockets[1]].partner = sockets[5];
+    players[sockets[1]].type = "guesser"
     players[sockets[2]].partner = sockets[0];
+    players[sockets[2]].type = "guesser"
     players[sockets[3]].partner = sockets[7];
+    players[sockets[3]].type = "drawer"
     players[sockets[4]].partner = sockets[6];
+    players[sockets[4]].type = "drawer"
     players[sockets[5]].partner = sockets[1];
+    players[sockets[4]].type = "drawer"
     players[sockets[6]].partner = sockets[4];
+    players[sockets[6]].type = "guesser"
     players[sockets[7]].partner = sockets[3];
+    players[sockets[7]].type = "guesser"
   }
+  console.log(players)
+  partOne = false;
+  startGame();
 }
 
 
