@@ -1,0 +1,77 @@
+teacher/
+teaching/
+classroom/schoolroom/class room/
+schoolbus/school bus/
+firefighter/fireman/firewoman/
+fire-fighting/firefighting/
+fire station/firestation/fire department/fire dept/
+firetruck/fire truck/fire engine/
+farmer/
+barn/
+tractor/
+chef/cook/
+cooking/
+restaurant/cafe/
+kitchen/
+lemonade/
+sushi/
+sunburn/
+dizzy/
+briefcase/
+teacher/
+teaching/
+classroom/schoolroom/class room/
+schoolbus/school bus/
+firefighter/fireman/firewoman/
+fire-fighting/firefighting/
+fire station/firestation/fire department/fire dept/
+firetruck/fire truck/fire engine/
+kitchen/
+lemonade/
+briefcase/
+beard/
+window blind/blinds/venetian blinds/
+koala/koala bear/
+volleyball/volley ball/
+elevator/lift/
+oar/paddle/
+homesick/
+teacher/
+school bus/schoolbus/
+fire-fighting/firefighting/
+barn/
+kitchen/
+lemonade/
+sushi/
+sunburn/
+dizzy/
+briefcase/
+beard/
+window blind/blinds/venetian blinds/
+koala/koala bear/
+volleyball/volley ball/
+elevator/lift/
+cheese grater/grater/
+sidewalk/side walk/
+wedding/get married/
+circus/
+jet lag/jetlag/
+teacher/
+teaching/
+classroom/schoolroom/class room/
+schoolbus/school bus/
+firefighter/fireman/firewoman/
+fire-fighting/firefighting/
+fire station/firestation/fire department/fire dept/
+firetruck/fire truck/fire engine/
+kitchen/
+lemonade/
+briefcase/
+beard/
+window blind/blinds/venetian blinds/
+koala/koala bear/
+volleyball/volley ball/
+elevator/lift/
+oar/paddle/
+homesick/
+
