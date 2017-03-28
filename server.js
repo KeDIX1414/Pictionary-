@@ -27,40 +27,48 @@ var buf = new Buffer(2000);
 
 io.sockets.emit('endgame');
 
-fs.open('arguments.txt', 'r+', function(err, fd) {
-   if (err) {
-       return console.error(err);
-   }
-   fs.read(fd, buf, 0, buf.length, 0, function(err, bytes){
-      if (err){
-         console.log(err);
-      }
-
-      // Print only read bytes to avoid junk.
-      if(bytes > 0){
-        var str = buf.slice(0, bytes).toString();
-        var allWords = new Array();
-        allWords = str.split("\n");
-        console.log(allWords.length)
-      }
-      
-      for (i = 0; i < allWords.length; i++) {
-        var options = allWords[i].split("/");
-        if (i < 38) {
-          words.push(options);
-        } else {
-          wordsTwo.push(options);
-        }
-      }
-      fs.close(fd, function(err){
-         if (err){
-            console.log(err);
-         } 
-         console.log("File closed successfully.");
-         console.log(wordsTwo[0] + "  " + wordsTwo[1] + "  " + wordsTwo[0][0])
-      });
-   });
+fs.readFile('Round1StrucOrder1.txt', function(err, data) {
+	if (err) {
+		console.log(err);
+	} else {
+		var allWords = data.toString().split("\n");
+		for (var i = 0; i < allWords.length - 1; i++) {
+            var options = allWords[i].split("/");
+            words.push(options);
+		}
+	}
 });
+
+
+fs.readFile('Round1UnstrucOrder1.txt', function(err, data) {
+	if (err) {
+		console.log(err);
+	} else {
+		var allWords = data.toString().split("\n");
+		for (var i = 0; i < allWords.length - 1; i++) {
+            var options = allWords[i].split("/");
+            wordsTwo.push(options);
+		}
+	}
+});
+
+
+fs.readFile('Round2Order1.txt', function(err, data) {
+	if (err) {
+		console.log(err);
+	} else {
+		var allWords = data.toString().split("\n");
+		for (var i = 0; i < allWords.length - 1; i++) {
+            var options = allWords[i].split("/");
+            words.push(options);
+            wordsTwo.push(options);
+		}
+	}
+	console.log(words);
+	console.log(wordsTwo);
+});
+
+
 
 
 
@@ -92,7 +100,7 @@ io.on('connection', function(socket){
 
     socket.on('readytoend', function() {
       playersEnded++;
-      if (playersEnded === 2) {
+      if (playersEnded === 8) {
         endGame();
       }
     });
