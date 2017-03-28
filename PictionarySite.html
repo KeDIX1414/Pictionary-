@@ -2,7 +2,7 @@
 	<head>
 		<title> Cultural Evolution of Language Lab's Pictionary Game </title>
 		<style>
-		body {font-family: arial ;background-color: rgb(211, 211, 211); color: Black; position:relative;}
+		body {font-family: arial ;background-color: rgb(211, 211, 211); color: Black; }
 		h1 {background-color: Blue; color: rgb(200, 255, 255);}
 		#wrapper {position:relative; width:400px; height:400px; margin:0 auto; padding-top:75px;}
 		#canvas {background-color: White; cursor:crosshair;}
@@ -25,14 +25,14 @@ Guess what it is by writing your guess in the text box and pressing Enter. (Donâ
       		</ol>
     	</strong></p>
     	<p style="color:black; font-size: 200%"> WARNING: Do not refresh this page until the experiment is over! </p>
-    		<button id="ready" onclick="readyToPlay()"> Ready to Play!</button>
-			<p id="countdown"> Time Left: 60</p>
-			<p id="guess_information" > </p>
-			<p id="text" >Click the "Ready to Play!" button once you have read the directions. The game will begin shortly. Do not refresh the page.</p>
-			<p id="clue" style= "color:black;"> </p>
-			<canvas id="canvas" width=300 height=300 > </canvas>
-			<textarea id="textbox" rows="1"> </textarea>
-			<script src="/public/canvas.js"></script>
-			<button onclick="guessSubmitted()">Submit Guess!</button>		
+    	<button id="ready" onclick="readyToPlay()"> Ready to Play!</button>
+		<p id="countdown"> Time Left: 60</p>
+		<p id="guess_information" > </p>
+		<p id="text" >Click the "Ready to Play!" button once you have read the directions. The game will begin shortly. Do not refresh the page.</p>
+		<p id="clue" style= "color:black;"> </p>
+		<canvas id="canvas" width=300 height=300  style="width: 300px; height: 300px;"> </canvas>
+		<textarea style="resize: none;" id="textbox" rows="1"> </textarea>
+		<script src="/public/canvas.js"></script>
+		<button onclick="guessSubmitted()">Submit Guess!</button>		
 	</body>
 </html>

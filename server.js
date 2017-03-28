@@ -4,7 +4,7 @@ var fs = require('fs');
 var app = express();
 var path = require('path');
 var http = require('http').Server(app);
-var io = require('socket.io')(http); //app
+var io = require('socket.io')(http); //http
 
 //var sockets
 var players = {}; // keeps track of everyone playing the game
@@ -57,8 +57,6 @@ fs.open('arguments.txt', 'r+', function(err, fd) {
             console.log(err);
          } 
          console.log("File closed successfully.");
-         //console.log(words);
-         //console.log(wordsTwo);
          console.log(wordsTwo[0] + "  " + wordsTwo[1] + "  " + wordsTwo[0][0])
       });
    });
@@ -85,9 +83,6 @@ io.on('connection', function(socket){
 	
  	// handle when player disconnects
   	socket.on('disconnect', function() {
-      /*if (!gameStarted) {
-        return;
-      }*/
     	console.log('user disconnected');
       playersEnded = 2;
       stream.write(timeStamp() + " " + players[socket.id].num + " disconnected\n");
@@ -110,7 +105,7 @@ io.on('connection', function(socket){
         numReadyPlayers++;
         console.log("This many people are ready to play:   " + numReadyPlayers)
       }
-      if (numReadyPlayers === 8) {
+      if (numReadyPlayers === 2) {
           gameStarted = true;
           setTimeout(startGame, 5000)
         }
@@ -162,7 +157,7 @@ io.on('connection', function(socket){
       console.log(players[socket.id].num + " guesses " + guess + " when answer is " + words[round] + "\n")
       var answer = "";
       for (i = 0; i < words.length; i++) {
-        if (guess === words[round][i] && players[socket.id].group === 1) {
+        if (guess === words[round][i].replace(/\s/g, "") && players[socket.id].group === 1) {
           answer = "correct";
           socket.emit('guesser_guessreceived', answer);
           socket.broadcast.to(players[socket.id].partner).emit('drawer_guessreceived', answer, guess);
@@ -170,7 +165,7 @@ io.on('connection', function(socket){
           players[players[socket.id].partner].playing = false;
           return;
         } 
-        else if (guess === wordsTwo[round][i] && players[socket.id].group === 2) {
+        else if (guess === wordsTwo[round][i].replace(/\s/g, "") && players[socket.id].group === 2) {
           answer = "correct"
           socket.emit('guesser_guessreceived', answer);
           socket.broadcast.to(players[socket.id].partner).emit('drawer_guessreceived', answer, guess);
