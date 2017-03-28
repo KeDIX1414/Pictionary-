@@ -1,5 +1,6 @@
 //style="margin-bottom:50px;"
 var socket = io();
+//var socket = io.connect('//localhost:30000', {'forceNew': true});
 var canvas = document.getElementById('canvas');
 var answer = document.getElementById('textbox');
 var paint = false;
@@ -154,7 +155,8 @@ socket.on('endgame', function(){
 	document.getElementById('text').innerHTML = "";
 	document.getElementById('clue').innerHTML = "";
 	socket.emit('readytoend');
-    socket.disconnect();
+    //socket.disconnect();
+    socket.io.close();
 });
 
 
@@ -182,6 +184,7 @@ socket.on('drawclick', function(coordinates) {
 
 canvas.addEventListener('mousedown', function(e) {
 	paint = true;
+	console.log(canvas.offsetLeft + "   "  +canvas.offsetTop)
     x = e.pageX-canvas.offsetLeft;
 	y = e.pageY-canvas.offsetTop;
 	currentX = x;
