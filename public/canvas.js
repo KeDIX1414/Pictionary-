@@ -17,7 +17,7 @@ window.moveTo(0,0);
  */
 console.log(answer)
 window.onbeforeunload = function() {
-  return "If you refresh or leave this page, you will not be able to reenter this experiment, and you will forfeit payment. Are you sure?";
+	return "If you refresh or leave this page, you will not be able to reenter this experiment, and you will forfeit payment. Are you sure?";
 };
 
 /**
@@ -27,9 +27,9 @@ function readyToPlay() {
 	if (ready) {
 		return;
 	}
-	socket.emit('readytoplay');
 	ready = true;
-	alert("Awesome! We will begin when everyone else is ready.");
+	var prolificId = prompt("Excellent! Please enter your prolific ID");
+	socket.emit('readytoplay', prolificId);
 }
 
 
@@ -115,10 +115,13 @@ socket.on('giveposition', function() {
  * Give players directions at the start of each round.
  */
 
-socket.on('setroles', function(players, word, wordTwo) {
+socket.on('setroles', function(players, word, wordTwo, first) {
 	var text;
 	var clue;
 	console.log(players)
+	if (first) {
+		alert("The study is starting!")
+	}
 	if (players[socket.id].type === "guesser") {
 		text = "You are guesser this round. When you think you know what your partner is drawing, enter your guess in the textbox.";
 	} else {
@@ -151,7 +154,7 @@ socket.on('setroles', function(players, word, wordTwo) {
  */
 
 socket.on('endgame', function(){
-	document.getElementById('countdown').innerHTML = "This experiment has ended. Thank you for your participation!";
+	document.getElementById('countdown').innerHTML = "This experiment has ended. Thank you for your participation!<br/>IMPORTANT: You must click <a href=\"https://google.com\"> here </a> to receive payment for your participation.";
 	document.getElementById('text').innerHTML = "";
 	document.getElementById('clue').innerHTML = "";
 	socket.emit('readytoend');
