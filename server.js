@@ -93,10 +93,10 @@ io.on('connection', function(socket){
   	socket.on('disconnect', function() {
     	console.log('user disconnected');
       	if (!gameStarted) {
- 	    	numReadyPlayers--;
- 	    	sockets = sockets.filter(function(id) {
- 	      		id != socket.id
- 	    	});
+ 	    	  numReadyPlayers--;
+ 	    	  sockets = sockets.filter(function(id) {
+ 	      		return id != socket.id
+ 	    	  });
  	    	return;
       	}	
       	playersEnded = 2;
@@ -120,7 +120,8 @@ io.on('connection', function(socket){
         	players[socket.id].prolificId = prolificId;
         	stream.write(players[socket.id].num + " Prolific Id: " + prolificId + "\n")
         	numReadyPlayers++;
-        	console.log("This many people are ready to play:   " + numReadyPlayers)
+        	console.log("This many people are ready to play:   " + numReadyPlayers + "\n")
+          console.log(sockets)
       	}
       	if (numReadyPlayers === 8) {
         	gameStarted = true;
