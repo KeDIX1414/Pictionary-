@@ -174,8 +174,16 @@ io.on('connection', function(socket){
       	stream.write(timeStamp() + "  " + players[socket.id].num + " guesses " + guess + "\n");
       	console.log(players[socket.id].num + " guesses " + guess + " when answer is " + words[round] + "\n")
       	var answer = "";
-      	for (i = 0; i < words.length; i++) {
-	        if (guess === words[round][i].replace(/\s/g, "") && players[socket.id].group === 1) {
+        var group = players[socket.id].group;
+        var arr;
+        if (group === 1) {
+          arr = words;
+        } else {
+          arr = wordsTwo;
+        }
+      	for (i = 0; i < arr[round].length; i++) {
+          console.log(round + " " + i + " " + arr[round][i])
+	        if (guess === arr[round][i].replace(/\s/g, "")) {
 	          	answer = "correct";
 	          	socket.emit('guesser_guessreceived', answer);
 	          	socket.broadcast.to(players[socket.id].partner).emit('drawer_guessreceived', answer, guess);
@@ -183,14 +191,14 @@ io.on('connection', function(socket){
 	          	players[players[socket.id].partner].playing = false;
 	          	return;
 	        } 
-	        else if (guess === wordsTwo[round][i].replace(/\s/g, "") && players[socket.id].group === 2) {
+	        /*else if (guess === wordsTwo[round][i].replace(/\s/g, "") && players[socket.id].group === 2) {
 	          	answer = "correct"
 	          	socket.emit('guesser_guessreceived', answer);
 	          	socket.broadcast.to(players[socket.id].partner).emit('drawer_guessreceived', answer, guess);
 	          	players[socket.id].playing = false;
 	          	players[players[socket.id].partner].playing = false;
 	          	return;
-	        }
+	        }*/
       	}
       	answer = "incorrect"
       	socket.emit('guesser_guessreceived', answer);
