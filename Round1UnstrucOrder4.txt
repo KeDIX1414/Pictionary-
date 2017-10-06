@@ -25,10 +25,10 @@ jet lag/jetlag
 briefcase
 elevator/lift
 koala/koala bear
-sidewalk/side walk
+sidewalk/side walk/pavement
 elevator/lift
 fire-fighting/firefighting
-sidewalk/side walk
+sidewalk/side walk/pavement
 wedding/get married/ getting married
 sunburn
 koala/koala bear

@@ -17,7 +17,7 @@ koala/koala bear
 fire-fighting/firefighting
 beard
 briefcase
-sidewalk/side walk
+sidewalk/side walk/pavement
 fire-fighting/firefighting
 elevator/lift
 cheese grater/grater
@@ -27,7 +27,7 @@ elevator/lift
 wedding/get married/ getting married
 sushi
 dizzy
-sidewalk/side walk
+sidewalk/side walk/pavement
 jet lag/jetlag
 cheese grater/grater
 lemonade

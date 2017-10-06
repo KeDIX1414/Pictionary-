@@ -19,12 +19,12 @@ dizzy
 jet lag/jetlag
 cheese grater/grater
 koala/koala bear
-sidewalk/side walk
+sidewalk/side walk/pavement
 elevator/lift
 fire-fighting/firefighting
 sushi
 jet lag/jetlag
-sidewalk/side walk
+sidewalk/side walk/pavement
 school bus/schoolbus
 fire-fighting/firefighting
 koala/koala bear

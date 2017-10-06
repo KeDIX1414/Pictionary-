@@ -5,7 +5,7 @@ sushi
 koala/koala bear
 cheese grater/grater
 elevator/lift
-sidewalk/side walk
+sidewalk/side walk/pavement
 dizzy
 koala/koala bear
 jet lag/jetlag
@@ -32,5 +32,5 @@ elevator/lift
 cheese grater/grater
 school bus/schoolbus
 sunburn
-sidewalk/side walk
+sidewalk/side walk/pavement
 fire-fighting/firefighting

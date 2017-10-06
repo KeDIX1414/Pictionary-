@@ -52,7 +52,7 @@ koala/koala bear/
 volleyball/volley ball/
 elevator/lift/
 cheese grater/grater/
-sidewalk/side walk/
+sidewalk/side walk/pavement/
 wedding/get married/
 circus/
 jet lag/jetlag/
