@@ -7,6 +7,16 @@
 		#wrapper {position:relative; width:400px; height:400px; margin:0 auto; padding-top:75px;}
 		#canvas {background-color: White; cursor:crosshair;}
 		.noscript { padding:50px 30px 0 40px; width:820px;}
+		#myProgress {
+  			width: 100%;
+    		background-color: #ddd;
+		}
+
+		#myBar {
+  			width: 0%;
+  			height: 30px;
+  			background-color: #4CAF50;
+		}
 		</style>
 	</head>
 	<script src="/socket.io/socket.io.js"></script>
@@ -25,6 +35,9 @@ Guess what it is by writing your guess in the text box and pressing Enter. (Donâ
       		</ol>
     	</strong></p>
     	<p style="color:black; font-size: 200%"> WARNING: Do not refresh this page until the experiment is over! </p>
+    	<div id="myProgress">
+  			<div id="myBar">0%</div>
+		</div>  
     	<button id="ready" onclick="readyToPlay()"> Ready to Play!</button>
 		<p id="countdown"> Time Left: 60</p>
 		<p id="guess_information" > </p>

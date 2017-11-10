@@ -8,6 +8,7 @@ var timer = 20;
 var ready = false;
 var currentX = 0;
 var currentY = 0;
+var width = 0;
 window.moveTo(0,0);
 //window.resizeTo(screen.width,screen.height);
 
@@ -160,6 +161,16 @@ socket.on('endgame', function(){
 	socket.emit('readytoend');
     //socket.disconnect();
     socket.io.close();
+});
+
+socket.on('progressbar', function(change) {
+	if (width >= 8) {
+		return;
+	}
+    var elem = document.getElementById("myBar"); 
+    width = width + change;
+    elem.style.width = width * 12.5 + '%'; 
+    elem.innerHTML = width * 12.5 + '%';
 });
 
 

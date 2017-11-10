@@ -83,26 +83,28 @@ app.use("/public", express.static(__dirname + "/public"));
 io.on('connection', function(socket){
 	stream.write(timeStamp() + " " + socket.id + " connected\n")
   	//numPlayers = numPlayers + 1;
-	console.log('a user connected');
+	  console.log('a user connected');
   	console.log("" + socket.id)
   	sockets.push(socket.id);
   	players[socket.id] = {type: null, partner: null, group: null, playing: false, ready: false, num: numPlayers, id:socket.id, prolificId: ""};
   	numPlayers++;
+    socket.emit('progressbar', numReadyPlayers);
 	
  	// handle when player disconnects
   	socket.on('disconnect', function() {
     	console.log('user disconnected');
-      	if (!gameStarted) {
- 	    	  numReadyPlayers--;
- 	    	  sockets = sockets.filter(function(id) {
- 	      		return id != socket.id
- 	    	  });
+      io.sockets.emit('progressbar', -1);
+      if (!gameStarted) {
+ 	    	numReadyPlayers--;
+ 	    	sockets = sockets.filter(function(id) {
+ 	        return id != socket.id
+ 	      });
  	    	return;
-      	}	
-      	playersEnded = 2;
-      	stream.write(timeStamp() + " " + players[socket.id].num + " disconnected\n");
-      	io.sockets.emit('endgame');
-      	setTimeout(endGame, 5000)
+      }	
+      playersEnded = 2;
+      stream.write(timeStamp() + " " + players[socket.id].prolificId + " disconnected\n");
+      io.sockets.emit('endgame');
+      setTimeout(endGame, 5000)
     });
 
     socket.on('readytoend', function() {
@@ -122,10 +124,11 @@ io.on('connection', function(socket){
         	numReadyPlayers++;
         	console.log("This many people are ready to play:   " + numReadyPlayers + "\n")
           console.log(sockets)
+          io.sockets.emit('progressbar', 1);
       	}
       	if (numReadyPlayers === 8) {
         	gameStarted = true;
-          	setTimeout(startGame, 5000)
+          setTimeout(startGame, 5000)
         }
 
     })
@@ -145,7 +148,7 @@ io.on('connection', function(socket){
       	if (!playing || !players[socket.id].playing || players[socket.id].type != 'drawer') {
         	return;
       	}
-      	stream.write(players[socket.id].num + " " + " (" + currentX + "," + currentY + ")\n")
+      	stream.write(players[socket.id].prolificId + " " + " (" + currentX + "," + currentY + ")\n")
     });
 
     // handle when a line is drawn
@@ -171,8 +174,8 @@ io.on('connection', function(socket){
       	if (players[socket.id].type === "drawer" || !playing || !players[socket.id].playing || guess == "") {
         	return;
       	}
-      	stream.write(timeStamp() + "  " + players[socket.id].num + " guesses " + guess + "\n");
-      	console.log(players[socket.id].num + " guesses " + guess + " when answer is " + words[round] + "\n")
+      	stream.write(timeStamp() + "  " + players[socket.id].prolificId + " guesses " + guess + "\n");
+      	console.log(players[socket.id].prolificId + " guesses " + guess + " when answer is " + words[round] + "\n")
       	var answer = "";
         var group = players[socket.id].group;
         var arr;
@@ -191,14 +194,6 @@ io.on('connection', function(socket){
 	          	players[players[socket.id].partner].playing = false;
 	          	return;
 	        } 
-	        /*else if (guess === wordsTwo[round][i].replace(/\s/g, "") && players[socket.id].group === 2) {
-	          	answer = "correct"
-	          	socket.emit('guesser_guessreceived', answer);
-	          	socket.broadcast.to(players[socket.id].partner).emit('drawer_guessreceived', answer, guess);
-	          	players[socket.id].playing = false;
-	          	players[players[socket.id].partner].playing = false;
-	          	return;
-	        }*/
       	}
       	answer = "incorrect"
       	socket.emit('guesser_guessreceived', answer);
