@@ -170,7 +170,7 @@ socket.on('progressbar', function(change) {
     var elem = document.getElementById("myBar"); 
     width = width + change;
     elem.style.width = width * 12.5 + '%'; 
-    elem.innerHTML = "" + width;
+    elem.innerHTML = "" + (width/8)*100 + '%';
 });
 
 
